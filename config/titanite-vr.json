@@ -1,0 +1,34 @@
+{
+   "VRConfigs":[
+      {
+         "SlaveAddress":"0x61",
+         "Processor":"P0",
+         "VrName":"P0_PVDDCR_CPU0"
+      },
+      {
+         "SlaveAddress":"0x62",
+         "Processor":"P0",
+         "VrName":"P0_PVDDCR_CPU0"
+      },
+      {
+         "SlaveAddress":"0x63",
+         "Processor":"P0",
+         "VrName":"P0_PVDD11_S3"
+      },
+      {
+         "SlaveAddress":"0x72",
+         "Processor":"P1",
+         "VrName":"P1_PVDDCR_CPU0"
+      },
+      {
+         "SlaveAddress":"0x74",
+         "Processor":"P1",
+         "VrName":"P1_PVDDCR_CPU1"
+      },
+      {
+         "SlaveAddress":"0x75",
+         "Processor":"P1",
+         "VrName":"P1_PVDDIO"
+      }
+   ]
+}
