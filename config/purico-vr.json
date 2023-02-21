@@ -1,0 +1,19 @@
+{
+   "VRConfigs":[
+      {
+         "SlaveAddress":"0x61",
+         "Processor":"P0",
+         "VrName":"P0_VDD_CORE0_SOC"
+      },
+      {
+         "SlaveAddress":"0x62",
+         "Processor":"P0",
+         "VrName":"P0_VDD_11"
+      },
+      {
+         "SlaveAddress":"0x63",
+         "Processor":"P0",
+         "VrName":"P0_VDDCR_VDDIO_33"
+      }
+   ]
+}
