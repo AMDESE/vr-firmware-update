@@ -1,0 +1,210 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AVAIL_SPACE_BYTE	vr_update_infineon_xdpe.cpp	49;"	d	file:
+BIT_ENABLE	vr_update_renesas_gen2.cpp	31;"	d	file:
+BIT_ENABLE	vr_update_renesas_gen3.cpp	31;"	d	file:
+BLOCK_PREFIX	vr_update_infineon_xdpe.cpp	34;"	d	file:
+BYTE_PREFIX	vr_update_infineon_xdpe.cpp	35;"	d	file:
+CANDIDATE_FW	vr_update_renesas_patch.cpp	13;"	d	file:
+CMD_CODE_C6	vr_update_renesas_patch.cpp	17;"	d	file:
+CMD_CODE_C7	vr_update_renesas_patch.cpp	19;"	d	file:
+CMD_CODE_E6	vr_update_renesas_patch.cpp	18;"	d	file:
+COMMIT_DATA	vr_update_renesas_patch.cpp	20;"	d	file:
+COMPLETE_BIT	vr_update_renesas_patch.cpp	22;"	d	file:
+CONFIG_IMG_PTR	vr_update_infineon_xdpe.cpp	42;"	d	file:
+CRC	vr_update.cpp	14;"	d	file:
+CRC_REG_1	vr_update_infineon_tda.cpp	26;"	d	file:
+CRC_REG_1	vr_update_infineon_xdpe.cpp	40;"	d	file:
+CRC_REG_2	vr_update_infineon_tda.cpp	27;"	d	file:
+CRC_REG_2	vr_update_infineon_xdpe.cpp	41;"	d	file:
+CreateVRFrameworkObject	vr_update.cpp	/^vr_update* vr_update::CreateVRFrameworkObject(std::string Model,$/;"	f	class:vr_update
+DDBD0	vr_update_infineon_xdpe.cpp	55;"	d	file:
+DDBD1	vr_update_infineon_xdpe.cpp	56;"	d	file:
+DDBD2	vr_update_infineon_xdpe.cpp	57;"	d	file:
+DDBD3	vr_update_infineon_xdpe.cpp	58;"	d	file:
+DEVICE_FW_VERSION	vr_update_renesas_gen2.cpp	12;"	d	file:
+DEVICE_FW_VERSION	vr_update_renesas_gen3.cpp	13;"	d	file:
+DEVICE_FW_VERSION	vr_update_renesas_patch.cpp	15;"	d	file:
+DEVICE_REVISION	vr_update_renesas_gen2.cpp	26;"	d	file:
+DEVICE_REVISION	vr_update_renesas_gen3.cpp	26;"	d	file:
+DEV_ID_CMD	vr_update_renesas_gen2.cpp	21;"	d	file:
+DEV_ID_CMD	vr_update_renesas_gen3.cpp	22;"	d	file:
+DEV_REV_REV	vr_update_renesas_gen2.cpp	22;"	d	file:
+DEV_REV_REV	vr_update_renesas_gen3.cpp	23;"	d	file:
+DISABLE_PACKET	vr_update_renesas_gen2.cpp	10;"	d	file:
+DISABLE_PACKET	vr_update_renesas_gen3.cpp	11;"	d	file:
+DMA_READ	vr_update_renesas_gen2.cpp	18;"	d	file:
+DMA_READ	vr_update_renesas_gen3.cpp	19;"	d	file:
+DMA_READ	vr_update_renesas_patch.cpp	12;"	d	file:
+DMA_WRITE	vr_update_renesas_gen2.cpp	17;"	d	file:
+DMA_WRITE	vr_update_renesas_gen3.cpp	18;"	d	file:
+DMA_WRITE	vr_update_renesas_patch.cpp	11;"	d	file:
+FAIL_BIT	vr_update_renesas_patch.cpp	24;"	d	file:
+FINISH_CAPTURE	vr_update_renesas_gen2.cpp	11;"	d	file:
+FINISH_CAPTURE	vr_update_renesas_gen3.cpp	12;"	d	file:
+FINISH_CMD_CODE	vr_update_renesas_gen2.cpp	15;"	d	file:
+FINISH_CMD_CODE	vr_update_renesas_gen3.cpp	16;"	d	file:
+FW_WRITE	vr_update_renesas_gen2.cpp	16;"	d	file:
+FW_WRITE	vr_update_renesas_gen3.cpp	17;"	d	file:
+FW_WRITE	vr_update_renesas_patch.cpp	10;"	d	file:
+FirmwareID	main.cpp	/^    std::vector<std::string> FirmwareID;$/;"	m	struct:bundleInterfaceStruct	file:
+GEN2_0_7_BANK_REG	vr_update_renesas_gen2.cpp	24;"	d	file:
+GEN2_8_15_BANK_REG	vr_update_renesas_gen2.cpp	25;"	d	file:
+GEN2_CRC_ADDR	vr_update_renesas_gen2.cpp	19;"	d	file:
+GEN2_NVM_SLOT_ADDR	vr_update_renesas_gen2.cpp	20;"	d	file:
+GEN2_PRGM_STATUS	vr_update_renesas_gen2.cpp	23;"	d	file:
+GEN3_BANK_REG	vr_update_renesas_gen3.cpp	24;"	d	file:
+GEN3_CRC_ADDR	vr_update_renesas_gen3.cpp	20;"	d	file:
+GEN3_NVM_SLOT_ADDR	vr_update_renesas_gen3.cpp	21;"	d	file:
+GEN3_PRGM_STATUS	vr_update_renesas_gen3.cpp	25;"	d	file:
+GET_CRC	vr_update_infineon_xdpe.cpp	50;"	d	file:
+HALT_FW	vr_update_renesas_gen2.cpp	13;"	d	file:
+HALT_FW	vr_update_renesas_gen3.cpp	14;"	d	file:
+HALT_FW	vr_update_renesas_patch.cpp	14;"	d	file:
+INDEX_0	vr_update_renesas_patch.cpp	26;"	d	file:
+INDEX_1	vr_update_renesas_patch.cpp	27;"	d	file:
+INDEX_2	vr_update_renesas_patch.cpp	28;"	d	file:
+INDEX_200	vr_update_infineon_tda.cpp	23;"	d	file:
+INDEX_200	vr_update_infineon_xdpe.cpp	20;"	d	file:
+INDEX_2FF	vr_update_infineon_tda.cpp	24;"	d	file:
+INDEX_2FF	vr_update_infineon_xdpe.cpp	21;"	d	file:
+INDEX_3	vr_update_renesas_patch.cpp	29;"	d	file:
+INDEX_4	vr_update_renesas_patch.cpp	30;"	d	file:
+INDEX_40	vr_update_infineon_tda.cpp	21;"	d	file:
+INDEX_40	vr_update_infineon_xdpe.cpp	18;"	d	file:
+INDEX_5	vr_update_renesas_patch.cpp	31;"	d	file:
+INDEX_70	vr_update_infineon_tda.cpp	22;"	d	file:
+INDEX_70	vr_update_infineon_xdpe.cpp	19;"	d	file:
+INT_255	vr_update_infineon_xdpe.cpp	16;"	d	file:
+INT_255	vr_update_renesas_patch.cpp	33;"	d	file:
+INVAL_BYTE	vr_update_infineon_xdpe.cpp	52;"	d	file:
+LENGTHOFBLOCK	vr_update_infineon_xdpe.cpp	11;"	d	file:
+MACHINE	vr_update.cpp	13;"	d	file:
+MASK_BYTE_2	vr_update_renesas_patch.cpp	34;"	d	file:
+MASK_BYTE_3	vr_update_renesas_patch.cpp	35;"	d	file:
+MASK_BYTE_4	vr_update_renesas_patch.cpp	36;"	d	file:
+MASK_TWO_BYTES	vr_update_renesas_patch.cpp	37;"	d	file:
+MAXBUFFERSIZE	vr_update_infineon_xdpe.cpp	10;"	d	file:
+MAXIMUM_SIZE	vr_update_renesas_gen2.cpp	28;"	d	file:
+MAXIMUM_SIZE	vr_update_renesas_gen3.cpp	28;"	d	file:
+MAXIMUM_SIZE	vr_update_renesas_patch.cpp	38;"	d	file:
+MAXWAITTIME	vr_update_infineon_xdpe.cpp	14;"	d	file:
+MAX_RETRY	vr_update_renesas_patch.cpp	40;"	d	file:
+MFR_REG_READ	vr_update_infineon_xdpe.cpp	33;"	d	file:
+MFR_REG_WRITE	vr_update_infineon_xdpe.cpp	32;"	d	file:
+MINARGS	vr_update_infineon_xdpe.cpp	15;"	d	file:
+MINOTPSIZE	vr_update_infineon_xdpe.cpp	12;"	d	file:
+MINWAITTIME	vr_update_infineon_xdpe.cpp	13;"	d	file:
+MIN_NVM_SLOT	vr_update_renesas_gen2.cpp	29;"	d	file:
+MIN_NVM_SLOT	vr_update_renesas_gen3.cpp	29;"	d	file:
+MODEL	vr_update.cpp	10;"	d	file:
+PAGE_NUM_REG	vr_update_infineon_tda.cpp	10;"	d	file:
+PAGE_NUM_REG	vr_update_infineon_xdpe.cpp	36;"	d	file:
+PART1	vr_update_infineon_xdpe.cpp	24;"	d	file:
+PART1	vr_update_xdpe_patch.cpp	12;"	d	file:
+PART2	vr_update_infineon_xdpe.cpp	25;"	d	file:
+PART2	vr_update_xdpe_patch.cpp	13;"	d	file:
+PART3	vr_update_infineon_xdpe.cpp	26;"	d	file:
+PART3	vr_update_xdpe_patch.cpp	14;"	d	file:
+PART4	vr_update_infineon_xdpe.cpp	27;"	d	file:
+PART4	vr_update_xdpe_patch.cpp	15;"	d	file:
+PART5	vr_update_infineon_xdpe.cpp	28;"	d	file:
+PART5	vr_update_xdpe_patch.cpp	16;"	d	file:
+PASS_BIT	vr_update_renesas_patch.cpp	23;"	d	file:
+PMBusPayload	vr_update_renesas_patch.cpp	/^struct PMBusPayload$/;"	s	file:
+POLL_REG	vr_update_renesas_gen2.cpp	14;"	d	file:
+POLL_REG	vr_update_renesas_gen3.cpp	15;"	d	file:
+POLL_REG	vr_update_renesas_patch.cpp	16;"	d	file:
+PROCESSOR	vr_update.cpp	12;"	d	file:
+PROG_STATUS_REG	vr_update_infineon_tda.cpp	19;"	d	file:
+PROG_STATUS_REG	vr_update_infineon_xdpe.cpp	45;"	d	file:
+Processor	main.cpp	/^    std::vector<std::string> Processor;$/;"	m	struct:bundleInterfaceStruct	file:
+RPTR	vr_update_infineon_xdpe.cpp	31;"	d	file:
+SLAVE_ADDRESS	vr_update.cpp	11;"	d	file:
+SPBD0	vr_update_infineon_xdpe.cpp	61;"	d	file:
+SPBD1	vr_update_infineon_xdpe.cpp	62;"	d	file:
+SPBD2	vr_update_infineon_xdpe.cpp	63;"	d	file:
+SPBD3	vr_update_infineon_xdpe.cpp	64;"	d	file:
+SlaveAddress	main.cpp	/^    std::vector<std::string> SlaveAddress;$/;"	m	struct:bundleInterfaceStruct	file:
+Status	main.cpp	/^    std::vector<std::string> Status;$/;"	m	struct:bundleInterfaceStruct	file:
+UNLOCK_REG	vr_update_infineon_tda.cpp	17;"	d	file:
+UNLOCK_REG	vr_update_infineon_xdpe.cpp	43;"	d	file:
+UPLOAD_BYTE	vr_update_infineon_xdpe.cpp	51;"	d	file:
+USER_IMG_PTR1	vr_update_infineon_tda.cpp	11;"	d	file:
+USER_IMG_PTR1	vr_update_infineon_xdpe.cpp	37;"	d	file:
+USER_IMG_PTR2	vr_update_infineon_tda.cpp	12;"	d	file:
+USER_IMG_PTR2	vr_update_infineon_xdpe.cpp	38;"	d	file:
+USER_IMG_PTR3	vr_update_infineon_tda.cpp	13;"	d	file:
+USER_IMG_PTR3	vr_update_infineon_xdpe.cpp	39;"	d	file:
+USER_PROG_CMD	vr_update_infineon_tda.cpp	16;"	d	file:
+USER_PROG_CMD	vr_update_infineon_tda.cpp	18;"	d	file:
+USER_PROG_CMD	vr_update_infineon_xdpe.cpp	44;"	d	file:
+USER_PROG_STATUS	vr_update_infineon_tda.cpp	25;"	d	file:
+USER_PROG_STATUS	vr_update_infineon_xdpe.cpp	66;"	d	file:
+USER_READ_CMD	vr_update_infineon_tda.cpp	14;"	d	file:
+USER_READ_CMD	vr_update_infineon_tda.cpp	15;"	d	file:
+USER_READ_CMD	vr_update_infineon_tda.cpp	20;"	d	file:
+USER_READ_CMD	vr_update_infineon_xdpe.cpp	46;"	d	file:
+UpdateFirmware	vr_update_infineon_tda.cpp	/^bool vr_update_infineon_tda::UpdateFirmware()$/;"	f	class:vr_update_infineon_tda
+UpdateFirmware	vr_update_infineon_xdpe.cpp	/^bool vr_update_infineon_xdpe::UpdateFirmware()$/;"	f	class:vr_update_infineon_xdpe
+UpdateFirmware	vr_update_renesas_gen2.cpp	/^bool vr_update_renesas_gen2::UpdateFirmware()$/;"	f	class:vr_update_renesas_gen2
+UpdateFirmware	vr_update_renesas_gen3.cpp	/^bool vr_update_renesas_gen3::UpdateFirmware()$/;"	f	class:vr_update_renesas_gen3
+UpdateFirmware	vr_update_renesas_patch.cpp	/^bool vr_update_renesas_patch::UpdateFirmware()$/;"	f	class:vr_update_renesas_patch
+UpdateFirmware	vr_update_xdpe_patch.cpp	/^bool vr_update_xdpe_patch::UpdateFirmware()$/;"	f	class:vr_update_xdpe_patch
+VR_PLATFORM_FILE	main.cpp	26;"	d	file:
+ValidateFirmware	vr_update_infineon_tda.cpp	/^bool vr_update_infineon_tda::ValidateFirmware()$/;"	f	class:vr_update_infineon_tda
+ValidateFirmware	vr_update_infineon_xdpe.cpp	/^bool vr_update_infineon_xdpe::ValidateFirmware()$/;"	f	class:vr_update_infineon_xdpe
+ValidateFirmware	vr_update_renesas_gen2.cpp	/^bool vr_update_renesas_gen2::ValidateFirmware()$/;"	f	class:vr_update_renesas_gen2
+ValidateFirmware	vr_update_renesas_gen3.cpp	/^bool vr_update_renesas_gen3::ValidateFirmware()$/;"	f	class:vr_update_renesas_gen3
+ValidateFirmware	vr_update_renesas_patch.cpp	/^bool vr_update_renesas_patch::ValidateFirmware()$/;"	f	class:vr_update_renesas_patch
+ValidateFirmware	vr_update_xdpe_patch.cpp	/^bool vr_update_xdpe_patch::ValidateFirmware()$/;"	f	class:vr_update_xdpe_patch
+Versions	main.cpp	/^    std::vector<std::string> Versions;$/;"	m	struct:bundleInterfaceStruct	file:
+bundleInterfaceObj	main.cpp	/^bundleInterfaceStruct bundleInterfaceObj;$/;"	v
+bundleInterfaceStruct	main.cpp	/^struct bundleInterfaceStruct {$/;"	s	file:
+bundleVersionInterface	main.cpp	/^constexpr auto bundleVersionInterface = "xyz.openbmc_project.Software.BundleVersion";$/;"	v
+closeI2cDevice	vr_update.cpp	/^void vr_update::closeI2cDevice()$/;"	f	class:vr_update
+command	vr_update_renesas_patch.cpp	/^   u_int8_t command;$/;"	m	struct:PMBusPayload	file:
+crcCheckSum	vr_update_infineon_tda.cpp	/^bool vr_update_infineon_tda::crcCheckSum()$/;"	f	class:vr_update_infineon_tda
+crcCheckSum	vr_update_infineon_xdpe.cpp	/^bool vr_update_infineon_xdpe::crcCheckSum()$/;"	f	class:vr_update_infineon_xdpe
+crcCheckSum	vr_update_renesas_gen2.cpp	/^bool vr_update_renesas_gen2::crcCheckSum()$/;"	f	class:vr_update_renesas_gen2
+crcCheckSum	vr_update_renesas_gen3.cpp	/^bool vr_update_renesas_gen3::crcCheckSum()$/;"	f	class:vr_update_renesas_gen3
+crcCheckSum	vr_update_renesas_patch.cpp	/^bool vr_update_renesas_patch::crcCheckSum()$/;"	f	class:vr_update_renesas_patch
+crcCheckSum	vr_update_xdpe_patch.cpp	/^bool vr_update_xdpe_patch::crcCheckSum()$/;"	f	class:vr_update_xdpe_patch
+data	vr_update_renesas_patch.cpp	/^   u_int32_t data;$/;"	m	struct:PMBusPayload	file:
+findBusNumber	vr_update.cpp	/^bool vr_update::findBusNumber()$/;"	f	class:vr_update
+findBusNumber	vr_update_infineon_tda.cpp	/^bool vr_update_infineon_tda::findBusNumber()$/;"	f	class:vr_update_infineon_tda
+flag	vr_update_renesas_patch.cpp	/^   char flag;$/;"	m	struct:PMBusPayload	file:
+formatDword	vr_update_infineon_xdpe.cpp	/^std::vector<uint8_t> formatDword(std::string s_dword)$/;"	f
+getBundleVersionInterface	main.cpp	/^bool getBundleVersionInterface(sdbusplus::bus::bus& bus)$/;"	f
+getProperty	main.cpp	/^T getProperty(sdbusplus::bus::bus& bus, const char* service, const char* path,$/;"	f
+get_each_section_data	vr_update_infineon_xdpe.cpp	/^std::vector<std::vector<std::string>> get_each_section_data(std::string data)$/;"	f
+get_file_contents	vr_update_infineon_xdpe.cpp	/^std::string get_file_contents(std::string filename)$/;"	f
+invalidateOtp	vr_update_infineon_xdpe.cpp	/^int invalidateOtp(uint8_t xv, uint8_t hc,int fd)$/;"	f
+isUpdatable	vr_update_infineon_tda.cpp	/^bool vr_update_infineon_tda::isUpdatable()$/;"	f	class:vr_update_infineon_tda
+isUpdatable	vr_update_infineon_xdpe.cpp	/^bool vr_update_infineon_xdpe::isUpdatable()$/;"	f	class:vr_update_infineon_xdpe
+isUpdatable	vr_update_renesas_gen2.cpp	/^bool vr_update_renesas_gen2::isUpdatable()$/;"	f	class:vr_update_renesas_gen2
+isUpdatable	vr_update_renesas_gen3.cpp	/^bool vr_update_renesas_gen3::isUpdatable()$/;"	f	class:vr_update_renesas_gen3
+isUpdatable	vr_update_renesas_patch.cpp	/^bool vr_update_renesas_patch::isUpdatable()$/;"	f	class:vr_update_renesas_patch
+isUpdatable	vr_update_xdpe_patch.cpp	/^bool vr_update_xdpe_patch::isUpdatable()$/;"	f	class:vr_update_xdpe_patch
+main	main.cpp	/^int main(int argc, char* argv[])$/;"	f
+openI2cDevice	vr_update.cpp	/^bool vr_update::openI2cDevice()$/;"	f	class:vr_update
+parseCfgFile	vr_update_infineon_xdpe.cpp	/^std::vector<std::vector<std::string>> parseCfgFile(std::string filename)$/;"	f
+partial_crc	vr_update_infineon_xdpe.cpp	/^uint16_t partial_crc = 0;$/;"	v
+partial_pmbus_section_count_number	vr_update_infineon_xdpe.cpp	/^int partial_pmbus_section_count_number = 0;$/;"	v
+setBundleVersionInterface	main.cpp	/^void setBundleVersionInterface(sdbusplus::bus::bus& bus)$/;"	f
+setProperty	main.cpp	/^static auto setProperty(sdbusplus::bus::bus& bus, const char* service, const char* path,$/;"	f	file:
+uploadDataToOtp	vr_update_infineon_xdpe.cpp	/^int uploadDataToOtp(std::string s_dword, bool pmbus_section, int fd)$/;"	f
+vrBundlePath	main.cpp	/^std::string vrBundlePath = "\/xyz\/openbmc_project\/software\/vr_bundle_active";$/;"	v
+vrUpdate	main.cpp	/^int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,$/;"	f
+vr_update	vr_update.cpp	/^vr_update::vr_update(std::string Processor,std::string MachineName,$/;"	f	class:vr_update
+vr_update_infineon_tda	vr_update_infineon_tda.cpp	/^vr_update_infineon_tda::vr_update_infineon_tda(std::string Processor,$/;"	f	class:vr_update_infineon_tda
+vr_update_infineon_xdpe	vr_update_infineon_xdpe.cpp	/^vr_update_infineon_xdpe::vr_update_infineon_xdpe(std::string Processor,$/;"	f	class:vr_update_infineon_xdpe
+vr_update_renesas_gen2	vr_update_renesas_gen2.cpp	/^vr_update_renesas_gen2::vr_update_renesas_gen2(std::string Processor,$/;"	f	class:vr_update_renesas_gen2
+vr_update_renesas_gen3	vr_update_renesas_gen3.cpp	/^vr_update_renesas_gen3::vr_update_renesas_gen3(std::string Processor,$/;"	f	class:vr_update_renesas_gen3
+vr_update_renesas_patch	vr_update_renesas_patch.cpp	/^vr_update_renesas_patch::vr_update_renesas_patch(std::string Processor,$/;"	f	class:vr_update_renesas_patch
+vr_update_xdpe_patch	vr_update_xdpe_patch.cpp	/^vr_update_xdpe_patch::vr_update_xdpe_patch(std::string Processor,$/;"	f	class:vr_update_xdpe_patch
+writeDataToScratchpad	vr_update_infineon_xdpe.cpp	/^int writeDataToScratchpad(std::vector<std::string> section,int fd)$/;"	f

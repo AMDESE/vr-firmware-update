@@ -1,0 +1,29 @@
+{
+   "VRConfigs":[
+      {
+         "SlaveAddress":"0x40",
+         "Processor":"P0",
+         "VrName":"VDD_CORE0_VRM"
+      },
+      {
+         "SlaveAddress":"0x41",
+         "Processor":"P0",
+         "VrName":"VDD_IO_VRM"
+      },
+      {
+         "SlaveAddress":"0x42",
+         "Processor":"P0",
+         "VrName":"VDD_CORE1_VRM"
+      },
+      {
+         "SlaveAddress":"0x16",
+         "Processor":"P0",
+         "VrName":"VDD33_DUAL_VRM"
+      },
+      {
+         "SlaveAddress":"0x17",
+         "Processor":"P0",
+         "VrName":"VDD18_DUAL_VRM"
+      }
+   ]
+}
