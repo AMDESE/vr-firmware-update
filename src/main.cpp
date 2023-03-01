@@ -491,6 +491,7 @@ int main(int argc, char* argv[])
         else
         {
             sd_journal_print(LOG_ERR, "VR bundle json file doesn't exist. Update failed\n");
+            rc = FAILURE;
         }
     }
     return rc;
