@@ -96,6 +96,7 @@ struct bundleInterfaceStruct {
     std::vector<std::string> Processor;
     std::vector<std::string> Status;
     std::vector<std::string> Versions;
+    std::vector<std::string> Checksum;
 };
 
 bundleInterfaceStruct bundleInterfaceObj;
@@ -238,6 +239,10 @@ bool getBundleVersionInterface(sdbusplus::bus::bus& bus)
                                            vrBundlePath.c_str(),
                                            bundleVersionInterface, "Status");
 
+    std::vector<std::string> Checksum = getProperty<std::vector<std::string>>(bus,
+                                           bmcUpdaterService.c_str(),
+                                           vrBundlePath.c_str(),
+                                           bundleVersionInterface, "Checksum");
 
     if(FirmwareID.empty())
     {
@@ -251,6 +256,7 @@ bool getBundleVersionInterface(sdbusplus::bus::bus& bus)
           bundleInterfaceObj.Processor.assign(Processor.begin(),Processor.end());
           bundleInterfaceObj.Versions.assign(Versions.begin(),Versions.end());
           bundleInterfaceObj.Status.assign(Status.begin(),Status.end());
+          bundleInterfaceObj.Checksum.assign(Checksum.begin(),Checksum.end());
           return true;
     }
 }
@@ -282,6 +288,12 @@ void setBundleVersionInterface(sdbusplus::bus::bus& bus)
                                            bmcUpdaterService.c_str(),
                                            vrBundlePath.c_str(),
                                            bundleVersionInterface, "Status",bundleInterfaceObj.Status);
+
+    setProperty<std::vector<std::string>>(bus,
+                                           bmcUpdaterService.c_str(),
+                                           vrBundlePath.c_str(),
+                                           bundleVersionInterface, "Checksum",bundleInterfaceObj.Checksum);
+
 
 }
 
@@ -422,6 +434,7 @@ int main(int argc, char* argv[])
                     bundleInterfaceObj.Processor.push_back(record["Processor"]);
                     bundleInterfaceObj.Versions.push_back("Unknown");
                     bundleInterfaceObj.Status.push_back("Unknown");
+                    bundleInterfaceObj.Checksum.push_back("Unknown");
                 }
                 setBundleVersionInterface(bus);
             }
@@ -464,6 +477,7 @@ int main(int argc, char* argv[])
                         if(strcasecmp(bundleInterfaceObj.Processor[i].c_str(), Processor.c_str()) == SUCCESS)
                         {
                             bundleInterfaceObj.Versions[i] = version;
+                            bundleInterfaceObj.Checksum[i] = CrcConfig;
 
                             if(ret == SUCCESS)
                             {
@@ -487,10 +501,18 @@ int main(int argc, char* argv[])
                                            bmcUpdaterService.c_str(),
                                            vrBundlePath.c_str(),
                                            bundleVersionInterface, "Status",bundleInterfaceObj.Status);
+
+           setProperty<std::vector<std::string>>(bus,
+                                           bmcUpdaterService.c_str(),
+                                           vrBundlePath.c_str(),
+                                           bundleVersionInterface, "Checksum",bundleInterfaceObj.Checksum);
+
+           sd_journal_print(LOG_INFO, "********SYSTEM SHOULD BE AC CYCLED TO ACTIAVTE THE SUCCESSFULLY UPGRADED FIRMWARES********");
         }
         else
         {
             sd_journal_print(LOG_ERR, "VR bundle json file doesn't exist. Update failed\n");
+            rc = FAILURE;
         }
     }
     return rc;

@@ -101,6 +101,7 @@ extern "C"
 #define BASE_16               (16)
 #define FILE_PATH_SIZE        (256)
 #define MIN_WAIT_TIME         (10000)
+#define LENGTH_0              (0)
 
 #define ISL_DRIVER_PATH       ("/sys/bus/i2c/drivers/isl68137/")
 #define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/MP2862/")

@@ -51,7 +51,7 @@ bool vr_update_infineon_xdpe::crcCheckSum()
 
     length = i2c_smbus_read_block_data(fd, BLOCK_PREFIX, rdata);
 
-    if (length > SUCCESS)
+    if (length > LENGTH_0)
     {
         DeviceCrcData = ((uint32_t)rdata[INDEX_3] << SHIFT_24) | ((uint32_t)rdata[INDEX_2] << SHIFT_16)
                      | ((uint32_t)rdata[INDEX_1] << SHIFT_8) | (uint32_t)rdata[INDEX_0];
@@ -102,7 +102,7 @@ bool vr_update_infineon_xdpe::isUpdatable()
 
     length = i2c_smbus_read_block_data(fd, MFR_REG_READ, rdata);
 
-    if (length > SUCCESS)
+    if (length > LENGTH_0)
     {
         if (rdata[INDEX_1] == PART1 || rdata[INDEX_1] == PART2 ||
               rdata[INDEX_1] == PART3 || rdata[INDEX_1] == PART4 || rdata[INDEX_1] == PART5)
@@ -139,7 +139,7 @@ bool vr_update_infineon_xdpe::isUpdatable()
 
     length = i2c_smbus_read_block_data(fd, BLOCK_PREFIX, rdata);
 
-    if (length > SUCCESS)
+    if (length > LENGTH_0)
     {
         // size = d0 + 256 * d1. Formula provided in Infineon document
         size = (256 * rdata[INDEX_1] + rdata[INDEX_0]);
