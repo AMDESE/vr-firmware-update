@@ -1,0 +1,64 @@
+{
+	"VRConfigs":[
+	  {
+		"SlaveAddress": "0x3F",
+		"Processor": "P0",
+		"VrName": "VDD_IO_E32"
+	  },
+	  {
+		"SlaveAddress": "0x36",
+		"Processor": "P0",
+		"VrName": "VDD_33_S5"
+	  },
+	  {
+		"SlaveAddress": "0x3C",
+		"Processor": "P0",
+		"VrName": "VDDCR_SOCIO_A"
+	  },
+	  {
+		"SlaveAddress": "0x41",
+		"Processor": "P0",
+		"VrName": "VDDCR_SOCIO_C"
+	  },
+	  {
+		"SlaveAddress": "0x44",
+		"Processor": "P0",
+		"VrName": "VDDIO_04_HBM_B"
+	  },
+	  {
+		"SlaveAddress": "0x33",
+		"Processor": "P0",
+		"VrName": "VDD_18"
+	  },
+	  {
+		"SlaveAddress": "0x39",
+		"Processor": "P0",
+		"VrName": "VDD_18_S5"
+	  },
+	  {
+		"SlaveAddress": "0x47",
+		"Processor": "P0",
+		"VrName": "VDDIO_04_HBM_D"
+	  },
+	  {
+		"SlaveAddress": "0x4A",
+		"Processor": "P0",
+		"VrName": "VDD_075_USR"
+	  },
+	  {
+		"SlaveAddress": "0x43",
+		"Processor": "P0",
+		"VrName": "VDD_33_RUN"
+	  },
+	  {
+		"SlaveAddress": "0x44",
+		"Processor": "P0",
+		"VrName": "VDD_33_DUAL"
+	  },
+	  {
+		"SlaveAddress": "0x45",
+		"Processor": "P0",
+		"VrName": "VDD_5_DUAL"
+	  }
+	]
+ }
