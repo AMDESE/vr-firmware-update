@@ -46,20 +46,19 @@
 		"VrName": "VDD_075_USR"
 	  },
 	  {
-		"SlaveAddress": "0x13",
+		"SlaveAddress": "0x43",
 		"Processor": "P0",
 		"VrName": "VDD_33_RUN"
 	  },
 	  {
-		"SlaveAddress": "0x14",
+		"SlaveAddress": "0x44",
 		"Processor": "P0",
 		"VrName": "VDD_33_DUAL"
 	  },
 	  {
-		"SlaveAddress": "0x15",
+		"SlaveAddress": "0x45",
 		"Processor": "P0",
 		"VrName": "VDD_5_DUAL"
 	  }
-
 	]
  }
