@@ -103,7 +103,7 @@ extern "C"
 #define MIN_WAIT_TIME         (10000)
 
 #define ISL_DRIVER_PATH       ("/sys/bus/i2c/drivers/isl68137/")
-#define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/MP2862/")
+#define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/mp2975/")
 #define XDPE_DRIVER_PATH      ("/sys/bus/i2c/drivers/xdpe12284/")
 
 #define SLEEP_1               (1000000)

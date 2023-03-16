@@ -16,7 +16,8 @@ set(SRC_FILES src/main.cpp
               src/vr_update_renesas_patch.cpp
               src/vr_update_xdpe_patch.cpp 
               src/vr_update_infineon_xdpe.cpp 
-              src/vr_update_infineon_tda.cpp )
+              src/vr_update_infineon_tda.cpp
+              src/vr_update_mps.cpp )
 
 # import sdbusplus
 find_package(PkgConfig REQUIRED)
