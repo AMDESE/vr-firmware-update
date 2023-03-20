@@ -53,7 +53,7 @@ install_vr_platform_config()
        "107" | "116" | "117") #volcano board_ids
           cp /usr/sbin/volcano-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "5C" | "5D" | "5E" | "6C" | "6D" |"5F" | "60" ) #volcano board_ids
+       "5C" | "5D" | "5E" | "6C" | "6D" |"5F" | "60" ) #sh5 board_ids
           cp /usr/sbin/sh5-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
        esac
