@@ -130,7 +130,6 @@ bool vr_update::findBusNumber()
         else if(Processor.compare(SOCKET_1) == SUCCESS)
         {
             DeviceName = slaveDevice[INDEX_1];
-            std::cout << DeviceName << std::endl;
             slaveDevice[INDEX_1].resize(INDEX_2);
             BusNumber = std::stoi(slaveDevice[INDEX_1]);
         }

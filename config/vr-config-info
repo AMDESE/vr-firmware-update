@@ -35,25 +35,25 @@ install_vr_platform_config()
        "59"|"62"|"65")  # Shale board_ids
           cp /usr/sbin/shale-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "102" | "110" | "111") #Chalupa board_ids
+       "66" | "6E" | "6F") #Chalupa board_ids
           cp /usr/sbin/chalupa-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "103") #huambo board_ids
+       "67") #huambo board_ids
           cp /usr/sbin/huambo-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "104" | "112" | "113") #galena board_ids
+       "68" | "70" | "71") #galena board_ids
           cp /usr/sbin/galena-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "105") #recluse board_ids
+       "69") #recluse board_ids
           cp /usr/sbin/recluse-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "106" | "114" | "115") #purico board_ids
+       "6A" | "72" | "73") #purico board_ids
           cp /usr/sbin/purico-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "107" | "116" | "117") #volcano board_ids
+       "6B" | "74" | "75") #volcano board_ids
           cp /usr/sbin/volcano-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "5C" | "5D" | "5E" | "6C" | "6D" |"5F" | "60" ) #volcano board_ids
+       "5C" | "5D" | "5E" | "6C" | "6D" |"5F" | "60" ) #sh5 board_ids
           cp /usr/sbin/sh5-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
        esac

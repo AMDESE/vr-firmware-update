@@ -86,21 +86,7 @@ bool vr_update_infineon_xdpe::isUpdatable()
     int size;
     int rc = FAILURE;
 
-    /*Find if the VR device is infineon*/
-    wdata[INDEX_0] = DDBD0;
-    wdata[INDEX_1] = DDBD1;
-    wdata[INDEX_2] = DDBD2;
-    wdata[INDEX_3] = DDBD3;
-
-    rc = i2c_smbus_write_block_data(fd, RPTR, (uint8_t)LENGTHOFBLOCK, wdata);
-
-    if (rc != SUCCESS)
-    {
-        sd_journal_print(LOG_ERR, "Error: Failed to write data\n");
-        return false;
-    }
-
-    length = i2c_smbus_read_block_data(fd, MFR_REG_READ, rdata);
+    length = i2c_smbus_read_block_data(fd, DEVICE_ID_CMD, rdata);
 
     if (length > LENGTH_0)
     {
@@ -109,7 +95,7 @@ bool vr_update_infineon_xdpe::isUpdatable()
         {
             sd_journal_print(LOG_INFO, "Infineon device detected\n");
         } else {
-            sd_journal_print(LOG_ERR, "Error: No device detected\n");
+            sd_journal_print(LOG_ERR, "Part number = 0x%x. Error: No device detected\n",rdata[INDEX_1]);
             return false;
         }
     } else {
