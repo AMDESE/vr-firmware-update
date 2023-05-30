@@ -23,6 +23,8 @@
 #define PART5             (0x99)
 
 /* CMD PREFIX */
+
+#define DEVICE_ID_CMD     (0xad)
 #define RPTR              (0xce)
 #define MFR_REG_WRITE     (0xde)
 #define MFR_REG_READ      (0xdf)

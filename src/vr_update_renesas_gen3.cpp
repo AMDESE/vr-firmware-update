@@ -214,8 +214,8 @@ bool vr_update_renesas_gen3::isUpdatable()
 
     if (ret >= SUCCESS)
     {
-        DeviceRevision = (rdata[INDEX_1] << SHIFT_24) | (rdata[INDEX_2] << SHIFT_16)
-                                      | (rdata[INDEX_3] << SHIFT_8) | rdata[INDEX_4];
+        DeviceRevision = (rdata[INDEX_4] << SHIFT_24) | (rdata[INDEX_3] << SHIFT_16)
+                                      | (rdata[INDEX_2] << SHIFT_8) | rdata[INDEX_1];
 
         sd_journal_print(LOG_INFO, "Device revision from VR device = 0x%x\n", DeviceRevision);
     }

@@ -59,6 +59,21 @@
          "SlaveAddress":"0x65",
          "Processor":"P1",
          "VrName":"P1_VDD_33_DUAL"
+      },
+      {
+         "SlaveAddress":"0x13",
+         "Processor":"None",
+         "VrName":"VDD_13_RUN"
+      },
+      {
+         "SlaveAddress":"0x14",
+         "Processor":"None",
+         "VrName":"VDD_33_DUAL"
+      },
+      {
+         "SlaveAddress":"0x15",
+         "Processor":"None",
+         "VrName":"VDD_5_DUAL"
       }
    ]
 }
