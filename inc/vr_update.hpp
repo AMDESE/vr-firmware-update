@@ -75,6 +75,7 @@ extern "C"
 #define INDEX_4               (4)
 #define INDEX_5               (5)
 #define INDEX_6               (6)
+#define INDEX_7               (7)
 #define INDEX_8               (8)
 #define INDEX_10              (10)
 #define INDEX_12              (12)
@@ -104,7 +105,7 @@ extern "C"
 #define LENGTH_0              (0)
 
 #define ISL_DRIVER_PATH       ("/sys/bus/i2c/drivers/isl68137/")
-#define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/MP2862/")
+#define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/mp2975/")
 #define XDPE_DRIVER_PATH      ("/sys/bus/i2c/drivers/xdpe12284/")
 
 #define SLEEP_1               (1000000)

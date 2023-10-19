@@ -12,6 +12,7 @@
 #include "vr_update_renesas_gen3.hpp"
 #include "vr_update_renesas_patch.hpp"
 #include "vr_update_xdpe_patch.hpp"
+#include "vr_update_mps.hpp"
 
 #define MODEL			("Model")
 #define SLAVE_ADDRESS	("SlaveAddress")
@@ -77,6 +78,11 @@ vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
     else if (strcasecmp(Model.c_str(), INFINEON_TDA) == SUCCESS)
     {
         p = new vr_update_infineon_tda(Processor,Crc,Model,SlaveAddress,configFilePath);
+    }
+ else if ((strcasecmp(Model.c_str(), MPS2861) == SUCCESS) ||
+            (strcasecmp(Model.c_str(), MPS2862) == SUCCESS))
+    {
+        p = new vr_update_mps(Processor,Crc,Model,SlaveAddress,configFilePath);
     }
 	else{
 		sd_journal_print(LOG_ERR, "Invalid Framework\n");
