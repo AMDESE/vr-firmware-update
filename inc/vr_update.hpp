@@ -140,7 +140,7 @@ public:
     virtual bool UpdateFirmware() = 0;
     virtual bool crcCheckSum() = 0;
     virtual bool ValidateFirmware() = 0;
-
+    bool CrcMatched;
 };
 
 #endif

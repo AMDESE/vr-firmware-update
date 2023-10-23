@@ -50,11 +50,13 @@ bool vr_update_renesas_gen2::crcCheckSum()
     if(DeviceCrc == Crc)
     {
        sd_journal_print(LOG_ERR, "Device CRC matches with file CRC. Skipping the update\n");
+       CrcMatched = true;
        return false;
     }
     else
     {
         sd_journal_print(LOG_INFO, "CRC not matched with the previous image. Continuing the update\n");
+        CrcMatched = false;
         return true;
     }
 }
