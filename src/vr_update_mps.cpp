@@ -39,11 +39,13 @@ bool vr_update_mps::crcCheckSum(){
     if(DeviceCrc == Crc)
     {
        sd_journal_print(LOG_ERR, "Error: Device CRC matches with file CRC. Skipping the update\n");
+       CrcMatched = true;
        return FAILURE;
     }
     else
     {
         sd_journal_print(LOG_ERR, "Info: CRC does not match with the previous image. Continuing the update\n");
+        CrcMatched = false;
         return SUCCESS;
     }
 }

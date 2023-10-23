@@ -102,7 +102,7 @@ struct bundleInterfaceStruct {
 bundleInterfaceStruct bundleInterfaceObj;
 
 int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
-             std::string Processor,std::string configFilePath, std::string UpdateType)
+             std::string Processor,std::string configFilePath, std::string UpdateType,bool *CrcMatched)
 {
 
     int ret = FAILURE;
@@ -135,6 +135,7 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
         rc = vr_update_obj->crcCheckSum();
         if(rc != true)
         {
+            *CrcMatched = vr_update_obj->CrcMatched;
             ret = FAILURE;
             goto Clean;
         }
@@ -460,6 +461,7 @@ int main(int argc, char* argv[])
                 std::string version = record["Version"];
                 std::string UpdateType = record["UpdateType"];
                 std::string configFilePath = filePath + '/' + configFileName;
+                bool CrcMatched = false;
 
                 if(PlatformIDValidation(BoardName) == false)
                 {
@@ -468,7 +470,7 @@ int main(int argc, char* argv[])
 
                 sd_journal_print(LOG_INFO, "Updating VR for the Slave Address = 0x%x", SlaveAddress);
 
-                ret = vrUpdate(Model,SlaveAddress,Crc,Processor,configFilePath,UpdateType);
+                ret = vrUpdate(Model,SlaveAddress,Crc,Processor,configFilePath,UpdateType,&CrcMatched);
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
@@ -481,12 +483,18 @@ int main(int argc, char* argv[])
                             if(ret == SUCCESS)
                             {
                                 bundleInterfaceObj.Checksum[i] = CrcConfig;
-                                bundleInterfaceObj.Status[i] = "Pass";
+                                bundleInterfaceObj.Status[i] = "Update Completed";
                             }
                             else
                             {
-                                bundleInterfaceObj.Status[i] = "Fail";
-                                rc = FAILURE;
+                                if(CrcMatched == true)
+                                {
+                                    sd_journal_print(LOG_INFO,"Updating Status to UptoDate\n");
+                                    bundleInterfaceObj.Status[i] = "Already UpToDate";
+                                } else {
+                                    bundleInterfaceObj.Status[i] = "Update Failed";
+                                    rc = FAILURE;
+                                }
                             }
                         }
                     }

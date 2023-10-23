@@ -18,6 +18,7 @@ vr_update_xdpe_patch::vr_update_xdpe_patch(std::string Processor,
 
 bool vr_update_xdpe_patch::crcCheckSum()
 {
+    CrcMatched = false;
     return true;
 }
 

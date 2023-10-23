@@ -25,6 +25,7 @@ vr_update_renesas_patch::vr_update_renesas_patch(std::string Processor,
 
 bool vr_update_renesas_patch::crcCheckSum()
 {
+    CrcMatched = false;
     return true;
 }
 

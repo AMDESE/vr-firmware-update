@@ -68,11 +68,13 @@ bool vr_update_infineon_xdpe::crcCheckSum()
     if(DeviceCrcData == Crc)
     {
         sd_journal_print(LOG_ERR, "CRC matches with previous image. Skipping the update\n");
+        CrcMatched = true;
         return false;
     }
     else
     {
         sd_journal_print(LOG_ERR, "CRC didnot match with previous image. Continuing the update\n");
+        CrcMatched = false;
     }
     return true;
 }

@@ -1,24 +1,19 @@
 {
    "VRConfigs":[
       {
-         "SlaveAddress":"0x60",
+         "SlaveAddress":"0x61",
          "Processor":"P0",
          "VrName":"P0_VDD_CORE0_RUN"
       },
       {
-         "SlaveAddress":"0x61",
+         "SlaveAddress":"0x62",
          "Processor":"P0",
          "VrName":"P0_VDD_CORE1_RUN"
       },
       {
-         "SlaveAddress":"0x62",
-         "Processor":"P0",
-         "VrName":"P0_VDD_IO_RUN"
-      },
-      {
          "SlaveAddress":"0x63",
          "Processor":"P0",
-         "VrName":"P0_VDD_11_SUS"
+         "VrName":"P0_VDD_VDDIO_RUN"
       },
       {
          "SlaveAddress":"0x64",
@@ -31,24 +26,19 @@
          "VrName":"P0_VDD_33_DUAL"
       },
       {
-         "SlaveAddress":"0x60",
+         "SlaveAddress":"0x61",
          "Processor":"P1",
          "VrName":"P1_VDD_CORE0_RUN"
       },
       {
-         "SlaveAddress":"0x61",
+         "SlaveAddress":"0x62",
          "Processor":"P1",
          "VrName":"P1_VDD_CORE1_RUN"
       },
       {
-         "SlaveAddress":"0x62",
-         "Processor":"P1",
-         "VrName":"P1_VDD_IO_RUN"
-      },
-      {
          "SlaveAddress":"0x63",
          "Processor":"P1",
-         "VrName":"P1_VDD_11_SUS"
+         "VrName":"P1_VDDIO_RUN"
       },
       {
          "SlaveAddress":"0x64",
