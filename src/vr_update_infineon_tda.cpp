@@ -13,7 +13,7 @@ vr_update_infineon_tda::vr_update_infineon_tda(std::string Processor,
           vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath)
 {
 
-    DriverPath = XDPE_DRIVER_PATH;
+    DriverPath = PMBUS_DRIVER_PATH;
 }
 
 bool vr_update_infineon_tda::crcCheckSum()
