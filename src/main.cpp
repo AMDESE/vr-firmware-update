@@ -489,7 +489,6 @@ int main(int argc, char* argv[])
                             {
                                 if(CrcMatched == true)
                                 {
-                                    sd_journal_print(LOG_INFO,"Updating Status to UptoDate\n");
                                     bundleInterfaceObj.Status[i] = "Already UpToDate";
                                 } else {
                                     bundleInterfaceObj.Status[i] = "Update Failed";

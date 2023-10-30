@@ -107,6 +107,7 @@ extern "C"
 #define ISL_DRIVER_PATH       ("/sys/bus/i2c/drivers/isl68137/")
 #define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/mp2975/")
 #define XDPE_DRIVER_PATH      ("/sys/bus/i2c/drivers/xdpe12284/")
+#define PMBUS_DRIVER_PATH     ("/sys/bus/i2c/drivers/pmbus/")
 
 #define SLEEP_1               (1000000)
 #define SLEEP_2               (2000000)
