@@ -97,12 +97,13 @@ struct bundleInterfaceStruct {
     std::vector<std::string> Status;
     std::vector<std::string> Versions;
     std::vector<std::string> Checksum;
+    std::vector<bool> UpdateStatus;
 };
 
 bundleInterfaceStruct bundleInterfaceObj;
 
 int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
-             std::string Processor,std::string configFilePath, std::string UpdateType,bool *CrcMatched)
+             std::string Processor,std::string configFilePath, std::string UpdateType,bool *CrcMatched,std::string Revision)
 {
 
     int ret = FAILURE;
@@ -111,7 +112,7 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
     vr_update* vr_update_obj;
 
     vr_update_obj = vr_update::CreateVRFrameworkObject(Model,
-                    SlaveAddress,Crc,Processor,configFilePath,UpdateType);
+                    SlaveAddress,Crc,Processor,configFilePath,UpdateType,Revision);
 
     if(vr_update_obj != NULL)
     {
@@ -258,6 +259,8 @@ bool getBundleVersionInterface(sdbusplus::bus::bus& bus)
           bundleInterfaceObj.Versions.assign(Versions.begin(),Versions.end());
           bundleInterfaceObj.Status.assign(Status.begin(),Status.end());
           bundleInterfaceObj.Checksum.assign(Checksum.begin(),Checksum.end());
+
+          bundleInterfaceObj.UpdateStatus.assign(bundleInterfaceObj.SlaveAddress.size(),false);
           return true;
     }
 }
@@ -397,6 +400,18 @@ int main(int argc, char* argv[])
 {
     int ret = FAILURE;
     int rc = SUCCESS;
+    uint16_t SlaveAddress;
+    std::string BoardName;
+    uint32_t Crc;
+    std::string version;
+    std::string UpdateType;
+    std::string Revision;
+    std::string configFilePath;
+    std::string Processor;
+    std::string Model;
+    std::string  CrcConfig;
+    std::string SlaveAddr;
+
     sdbusplus::bus::bus bus = sdbusplus::bus::new_default();
 
     if(argc < INDEX_2)
@@ -436,6 +451,7 @@ int main(int argc, char* argv[])
                     bundleInterfaceObj.Versions.push_back("Unknown");
                     bundleInterfaceObj.Status.push_back("Unknown");
                     bundleInterfaceObj.Checksum.push_back("Unknown");
+                    bundleInterfaceObj.UpdateStatus.push_back(false);
                 }
                 setBundleVersionInterface(bus);
             }
@@ -450,17 +466,74 @@ int main(int argc, char* argv[])
             //iterate over the array of VR's
             for (json record : data["VR"])
             {
-                std::string Model = record["ModelNumber"];
-                std::string SlaveAddr = record["SlaveAddress"];
-                uint16_t SlaveAddress = std::stoul(SlaveAddr, nullptr, BASE_16);
-                std::string  CrcConfig = record["CRC"];
-                uint32_t Crc = std::stoul(CrcConfig, nullptr, BASE_16);
-                std::string Processor = record["Processor"];
-                std::string BoardName =  record["BoardName"];
-                std::string configFileName = record["ConfigFile"];
-                std::string version = record["Version"];
-                std::string UpdateType = record["UpdateType"];
-                std::string configFilePath = filePath + '/' + configFileName;
+                if(record.contains("ModelNumber"))
+                {
+                    Model = record["ModelNumber"];
+                } else {
+                    sd_journal_print(LOG_ERR,"Json file doesnt have model number. Update aborted\n");
+                    return false;
+                }
+
+                if(record.contains("SlaveAddress"))
+                {
+                    SlaveAddr = record["SlaveAddress"];
+                    SlaveAddress = std::stoul(SlaveAddr, nullptr, BASE_16);
+                } else {
+                    sd_journal_print(LOG_ERR,"Json file doesnt have slave address. Update aborted\n");
+                    return false;
+                }
+
+                if(record.contains("CRC"))
+                {
+                    CrcConfig = record["CRC"];
+                    Crc = std::stoul(CrcConfig, nullptr, BASE_16);
+                }
+
+                if(record.contains("Processor"))
+                {
+                    Processor = record["Processor"];
+                } else {
+                    sd_journal_print(LOG_ERR,"Json file doesnt have Processor details. Update aborted\n");
+                    return false;
+                }
+
+                if(record.contains("BoardName"))
+                {
+                    BoardName =  record["BoardName"];
+                } else {
+                    sd_journal_print(LOG_ERR,"Json file doesnt have BoadrdName details. Update aborted\n");
+                    return false;
+                }
+
+                if(record.contains("ConfigFile"))
+                {
+                    std::string configFileName = record["ConfigFile"];
+                    configFilePath = filePath + '/' + configFileName;
+                } else {
+                    sd_journal_print(LOG_ERR,"Json file doesnt have ConfigFile details. Update aborted\n");
+                    return false;
+                }
+
+                if(record.contains("Version"))
+                {
+                    version = record["Version"];
+                }
+
+                if(record.contains("UpdateType"))
+                {
+                    UpdateType = record["UpdateType"];
+                } else {
+                    sd_journal_print(LOG_ERR,"Json file doesnt have UpdateType details. Update aborted\n");
+                    return false;
+                }
+
+                if(record.contains("Revision"))
+                {
+                    Revision = record["Revision"];
+                } else {
+                    Revision = "None";
+                }
+
                 bool CrcMatched = false;
 
                 if(PlatformIDValidation(BoardName) == false)
@@ -470,16 +543,16 @@ int main(int argc, char* argv[])
 
                 sd_journal_print(LOG_INFO, "Updating VR for the Slave Address = 0x%x", SlaveAddress);
 
-                ret = vrUpdate(Model,SlaveAddress,Crc,Processor,configFilePath,UpdateType,&CrcMatched);
+                ret = vrUpdate(Model,SlaveAddress,Crc,Processor,configFilePath,UpdateType,&CrcMatched,Revision);
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
-                    if(bundleInterfaceObj.SlaveAddress[i] == SlaveAddr)
+                    if((bundleInterfaceObj.SlaveAddress[i] == SlaveAddr) &&
+                       (bundleInterfaceObj.UpdateStatus[i] == false))
                     {
                         if(strcasecmp(bundleInterfaceObj.Processor[i].c_str(), Processor.c_str()) == SUCCESS)
                         {
                             bundleInterfaceObj.Versions[i] = version;
-
                             if(ret == SUCCESS)
                             {
                                 bundleInterfaceObj.Checksum[i] = CrcConfig;
@@ -495,6 +568,7 @@ int main(int argc, char* argv[])
                                     rc = FAILURE;
                                 }
                             }
+                        bundleInterfaceObj.UpdateStatus[i] = true;
                         }
                     }
                 }
@@ -513,6 +587,7 @@ int main(int argc, char* argv[])
                                            bmcUpdaterService.c_str(),
                                            vrBundlePath.c_str(),
                                            bundleVersionInterface, "Checksum",bundleInterfaceObj.Checksum);
+
 
            sd_journal_print(LOG_INFO, "********SYSTEM SHOULD BE AC CYCLED TO ACTIAVTE THE SUCCESSFULLY UPGRADED FIRMWARES********");
         }

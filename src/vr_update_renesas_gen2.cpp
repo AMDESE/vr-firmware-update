@@ -9,8 +9,8 @@
 #include "vr_update_renesas_gen2.hpp"
 
 vr_update_renesas_gen2::vr_update_renesas_gen2(std::string Processor,
-          uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath):
-          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath)
+          uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision):
+          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision)
 {
 
     DriverPath = ISL_DRIVER_PATH;

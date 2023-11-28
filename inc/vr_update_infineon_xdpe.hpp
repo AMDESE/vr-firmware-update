@@ -25,6 +25,7 @@
 /* CMD PREFIX */
 
 #define DEVICE_ID_CMD     (0xad)
+#define DEVICE_REV_CMD    (0xae)
 #define RPTR              (0xce)
 #define MFR_REG_WRITE     (0xde)
 #define MFR_REG_READ      (0xdf)
@@ -62,6 +63,11 @@
 
 #define USER_PROG_STATUS  (0x80)
 
+#define REV_A             ("RevA")
+#define REV_B             ("RevB")
+#define REVISION_2        (0x0101)
+#define REVISION_1        (0x0303)
+
 class vr_update_infineon_xdpe: public vr_update
 {
 
@@ -69,7 +75,7 @@ class vr_update_infineon_xdpe: public vr_update
 public:
     vr_update_infineon_xdpe(std::string Processor,
           uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath);
+          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision);
 
     virtual bool crcCheckSum();
     virtual bool isUpdatable();

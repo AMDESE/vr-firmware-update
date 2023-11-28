@@ -108,7 +108,6 @@ extern "C"
 #define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/mp2975/")
 #define XDPE_DRIVER_PATH      ("/sys/bus/i2c/drivers/xdpe12284/")
 #define PMBUS_DRIVER_PATH     ("/sys/bus/i2c/drivers/pmbus/")
-
 #define SLEEP_1               (1000000)
 #define SLEEP_2               (2000000)
 #define SLEEP_1000            (1000)
@@ -123,16 +122,17 @@ protected:
     std::string Model;
     std::string ConfigFilePath;
     std::string DriverPath;
+    std::string Revision;
     int fd;
     char updateFilePath[FILE_PATH_SIZE];
 
 public:
  vr_update(std::string Processor,uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath);
+          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision);
 
  static vr_update* CreateVRFrameworkObject(std::string Model,
               uint16_t SlaveAddress, uint32_t Crc, std::string Processor,
-              std::string configFilePath,std::string UpdateType);
+              std::string configFilePath,std::string UpdateType,std::string Revision);
 
     virtual bool isUpdatable() = 0;
     virtual bool findBusNumber();

@@ -9,8 +9,8 @@
 #include "vr_update_infineon_tda.hpp"
 
 vr_update_infineon_tda::vr_update_infineon_tda(std::string Processor,
-          uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath):
-          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath)
+          uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision):
+          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision)
 {
 
     DriverPath = PMBUS_DRIVER_PATH;
@@ -155,6 +155,9 @@ bool vr_update_infineon_tda::crcCheckSum()
 bool vr_update_infineon_tda::isUpdatable()
 {
 
+    uint16_t rdata = 0;
+    int rc = FAILURE;
+
     if(NextImgPtr > 40 )
     {
         std::cout << "OTP for user section is not available\n";
@@ -162,6 +165,45 @@ bool vr_update_infineon_tda::isUpdatable()
     }
     else
     {
+        /* Change to page 0 by writing 0 to register 0xFF */
+        rc = i2c_smbus_write_byte_data(fd, PAGE_NUM_REG, INDEX_0);
+
+        if (rc != SUCCESS) {
+            sd_journal_print(LOG_ERR, "Error: Changing page number to 0 failed\n");
+            return false;
+        }
+
+        /* Read register 0xFD to get the silicon version*/
+
+        rdata = i2c_smbus_read_word_data(fd,SILICON_VER_REG);
+        if (rdata < 0)
+        {
+            sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
+            return false ;
+        }
+
+        if((rdata == R2_REV1 || rdata == R2_REV2) &&
+            ((strcasecmp(Revision.c_str(), R2_REV)) == SUCCESS))
+        {
+            sd_journal_print(LOG_INFO, "R2 revision matched\n");
+        }
+        else if((rdata == R4_REV1 || rdata == R4_REV2) &&
+            ((strcasecmp(Revision.c_str(), R4_REV)) == SUCCESS))
+        {
+            sd_journal_print(LOG_INFO, "R4 revision matched\n");
+        }
+        else if((rdata == R5_REV1 || rdata == R5_REV2) &&
+            ((strcasecmp(Revision.c_str(), R5_REV)) == SUCCESS))
+        {
+            sd_journal_print(LOG_INFO, "R5 revision matched\n");
+        }
+        else
+        {
+            sd_journal_print(LOG_INFO,"Silicon revision from VR device = 0x%x\n",rdata);
+            sd_journal_print(LOG_ERR,"VR device silicion revision is not compatible for the update. Aborting the process...\n");
+            return false;
+        }
+
         return true;
     }
 }
