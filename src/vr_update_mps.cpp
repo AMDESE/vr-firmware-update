@@ -8,8 +8,8 @@
 #include "vr_update_mps.hpp"
 
 vr_update_mps::vr_update_mps(std::string Processor,
-        uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath):
-        vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath)
+        uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision):
+        vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision)
 {
         DriverPath = MPS_DRIVER_PATH;
 
@@ -25,14 +25,14 @@ bool vr_update_mps::crcCheckSum(){
     if (ret < SUCCESS)
      {
          sd_journal_print(LOG_ERR, "Error: Setting Page number failed\n");
-         return FAILURE;
+         return false;
      }
 
     ret = i2c_smbus_read_i2c_block_data(fd, CRC_ADDR, BYTE_COUNT_4, rdata);
     if (rdata < SUCCESS)
     {
            sd_journal_print(LOG_ERR, "Error: Reading CRC from device failed\n");
-           return FAILURE;
+           return false;
     }
 
     DeviceCrc = (rdata[INDEX_0] << SHIFT_8) | rdata[INDEX_1];
@@ -40,13 +40,13 @@ bool vr_update_mps::crcCheckSum(){
     {
        sd_journal_print(LOG_ERR, "Error: Device CRC matches with file CRC. Skipping the update\n");
        CrcMatched = true;
-       return FAILURE;
+       return false;
     }
     else
     {
         sd_journal_print(LOG_ERR, "Info: CRC does not match with the previous image. Continuing the update\n");
         CrcMatched = false;
-        return SUCCESS;
+        return true;
     }
 }
 
@@ -75,7 +75,7 @@ bool vr_update_mps::isUpdatable(){
     else
     {
         sd_journal_print(LOG_ERR, "Error: Failed to read Vendor ID from the VR device\n");
-        return FAILURE;
+        return false;
     }
 
     ret = i2c_smbus_read_i2c_block_data(fd, DEVICE_ID_REG, BYTE_COUNT_2, rdata); 
@@ -87,7 +87,7 @@ bool vr_update_mps::isUpdatable(){
     else
     {
         sd_journal_print(LOG_ERR, "Error: Failed to read Device ID from the VR device\n");
-        return FAILURE;
+        return false;
     }
 
     ret = i2c_smbus_read_i2c_block_data(fd, CONFIG_ID_REG, BYTE_COUNT_3, rdata);
@@ -99,7 +99,7 @@ bool vr_update_mps::isUpdatable(){
     else
     {
         sd_journal_print(LOG_ERR, "Error: Failed to read Config ID from the VR device\n");
-        return FAILURE;
+        return false;
     }
 
 //Read config file for same values - convert string to hex here
@@ -134,7 +134,7 @@ bool vr_update_mps::isUpdatable(){
     else
     {
         sd_journal_print(LOG_ERR, "Error: Failed to open config file\n");
-        return FAILURE;
+        return false;
     }
 
      if((VrVendorId == FileVendorId) && (VrDeviceId == FileDeviceId) && (VrConfigId == FileConfigId))
@@ -145,11 +145,11 @@ bool vr_update_mps::isUpdatable(){
     {
         sd_journal_print(LOG_ERR, "Error: VR IDs and File devie IDs did not match. Update failed\n");
         cFile.close();
-        return FAILURE;
+        return false;
 
     }
 
-    return SUCCESS;
+    return true;
 }
 
 

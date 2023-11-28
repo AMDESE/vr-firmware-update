@@ -12,8 +12,8 @@ int partial_pmbus_section_count_number = 0;
 uint16_t partial_crc = 0;
 
 vr_update_infineon_xdpe::vr_update_infineon_xdpe(std::string Processor,
-          uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath):
-          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath)
+          uint32_t Crc,std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision):
+          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision)
 {
 
     DriverPath = XDPE_DRIVER_PATH;
@@ -95,9 +95,35 @@ bool vr_update_infineon_xdpe::isUpdatable()
         if (rdata[INDEX_1] == PART1 || rdata[INDEX_1] == PART2 ||
               rdata[INDEX_1] == PART3 || rdata[INDEX_1] == PART4 || rdata[INDEX_1] == PART5)
         {
-            sd_journal_print(LOG_INFO, "Infineon device detected\n");
+            sd_journal_print(LOG_INFO, "Infineon device detected....\n");
         } else {
             sd_journal_print(LOG_ERR, "Part number = 0x%x. Error: No device detected\n",rdata[INDEX_1]);
+            return false;
+        }
+    } else {
+        sd_journal_print(LOG_ERR, "Error: Read failed\n");
+        return false;
+    }
+
+    /*Check the VR device revision*/
+    length = i2c_smbus_read_block_data(fd, DEVICE_REV_CMD, rdata);
+
+    if (length > LENGTH_0)
+    {
+        uint16_t revId = (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_0];
+
+        if((revId == REVISION_1) && ((strcasecmp(Revision.c_str(), REV_A)) == SUCCESS))
+        {
+            sd_journal_print(LOG_INFO, "Revision A matched\n");
+        }
+        else if((revId == REVISION_2) && ((strcasecmp(Revision.c_str(), REV_B)) == SUCCESS))
+        {
+            sd_journal_print(LOG_INFO," Revision B matched\n");
+        }
+        else
+        {
+            sd_journal_print(LOG_INFO,"Silicon revision from VR device = 0x%x\n",revId);
+            sd_journal_print(LOG_ERR,"VR device silicion revision is not compatible for the update. Aborting the process...\n");
             return false;
         }
     } else {

@@ -2,6 +2,7 @@
 #define VR_UPDATE_TDA_H_
 
 #define PAGE_NUM_REG 0xFF
+#define SILICON_VER_REG 0xFD
 #define USER_IMG_PTR1 0xB4
 #define USER_IMG_PTR2 0xB6
 #define USER_IMG_PTR3 0xB8
@@ -20,6 +21,17 @@
 #define CRC_REG_1 0xAE
 #define CRC_REG_2 0xB0
 
+#define R2_REV1 0x8402
+#define R2_REV2 0x9202
+#define R4_REV1 0x8404
+#define R4_REV2 0x9204
+#define R5_REV1 0x8405
+#define R5_REV2 0x9205
+
+#define R2_REV ("R2")
+#define R4_REV ("R4")
+#define R5_REV ("R5")
+
 class vr_update_infineon_tda: public vr_update
 {
 
@@ -29,7 +41,7 @@ protected:
 public:
     vr_update_infineon_tda(std::string Processor,
           uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath);
+          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision);
 
     virtual bool crcCheckSum();
     virtual bool isUpdatable();

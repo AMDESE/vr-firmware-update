@@ -22,9 +22,9 @@
 namespace fs = std::filesystem;
 
 vr_update::vr_update(std::string Processor,uint32_t Crc,std::string Model,
-           uint16_t SlaveAddress, std::string ConfigFilePath) :
+           uint16_t SlaveAddress, std::string ConfigFilePath,std::string Revision) :
            Processor(Processor),Crc(Crc), Model(Model),
-           SlaveAddress(SlaveAddress), ConfigFilePath(ConfigFilePath)
+           SlaveAddress(SlaveAddress), ConfigFilePath(ConfigFilePath) , Revision(Revision)
 {
 
     BusNumber = 0;
@@ -34,7 +34,7 @@ vr_update::vr_update(std::string Processor,uint32_t Crc,std::string Model,
 
 vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
               uint16_t SlaveAddress, uint32_t Crc, std::string Processor,
-              std::string configFilePath,std::string UpdateType)
+              std::string configFilePath,std::string UpdateType,std::string Revision)
 {
 	vr_update* p;
     if ((strcasecmp(UpdateType.c_str(), PATCH)) == SUCCESS)
@@ -47,12 +47,12 @@ vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
             (strcasecmp(Model.c_str(), RENESAS) == SUCCESS))
         {
             sd_journal_print(LOG_INFO,"Renesas patch update triggered\n");
-            p = new vr_update_renesas_patch(Processor,Crc,Model,SlaveAddress,configFilePath);
+            p = new vr_update_renesas_patch(Processor,Crc,Model,SlaveAddress,configFilePath,Revision);
         }
         else if (strcasecmp(Model.c_str(), INFINEON_XDPE) == SUCCESS)
         {
            sd_journal_print(LOG_INFO,"XDPE patch update triggered\n");
-           p = new vr_update_xdpe_patch(Processor,Crc,Model,SlaveAddress,configFilePath);
+           p = new vr_update_xdpe_patch(Processor,Crc,Model,SlaveAddress,configFilePath,Revision);
         }
         else {
            sd_journal_print(LOG_ERR, "Invalid framework\n");
@@ -64,25 +64,25 @@ vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
             (strcasecmp(Model.c_str(), RAA229625) == SUCCESS) ||
             (strcasecmp(Model.c_str(), RAA229620) == SUCCESS) ||
             (strcasecmp(Model.c_str(), RAA229621) == SUCCESS)) {
-		p = new vr_update_renesas_gen3(Processor,Crc,Model,SlaveAddress,configFilePath);
+		p = new vr_update_renesas_gen3(Processor,Crc,Model,SlaveAddress,configFilePath,Revision);
 	}
 
 	else if (strcasecmp(Model.c_str(), ISL68220) == SUCCESS) {
-		p = new vr_update_renesas_gen2(Processor,Crc,Model,SlaveAddress,configFilePath);
+		p = new vr_update_renesas_gen2(Processor,Crc,Model,SlaveAddress,configFilePath,Revision);
 	}
 
 	else if (strcasecmp(Model.c_str(), INFINEON_XDPE) == SUCCESS)
     {
-		p = new vr_update_infineon_xdpe(Processor,Crc,Model,SlaveAddress,configFilePath);
+		p = new vr_update_infineon_xdpe(Processor,Crc,Model,SlaveAddress,configFilePath,Revision);
     }
     else if (strcasecmp(Model.c_str(), INFINEON_TDA) == SUCCESS)
     {
-        p = new vr_update_infineon_tda(Processor,Crc,Model,SlaveAddress,configFilePath);
+        p = new vr_update_infineon_tda(Processor,Crc,Model,SlaveAddress,configFilePath,Revision);
     }
  else if ((strcasecmp(Model.c_str(), MPS2861) == SUCCESS) ||
             (strcasecmp(Model.c_str(), MPS2862) == SUCCESS))
     {
-        p = new vr_update_mps(Processor,Crc,Model,SlaveAddress,configFilePath);
+        p = new vr_update_mps(Processor,Crc,Model,SlaveAddress,configFilePath,Revision);
     }
 	else{
 		sd_journal_print(LOG_ERR, "Invalid Framework\n");
@@ -111,7 +111,7 @@ bool vr_update::findBusNumber()
         {
             std::string fname = entry->d_name;
 
-            if(fname.find(SlaveAddrStr) != std::string::npos)
+            if(fname.find("00" + SlaveAddrStr) != std::string::npos)
             {
                 slaveDevice.push_back(fname);
             }
@@ -124,21 +124,16 @@ bool vr_update::findBusNumber()
         }
         std::sort(slaveDevice.begin(),slaveDevice.end());
 
-    for (const auto& element : slaveDevice) {
-        std::cout << element << std::endl;
-    }
         if((Processor.compare(SOCKET_0) == SUCCESS) || (slaveDevice.size() == 1))
         {
-            DeviceName = slaveDevice[INDEX_0];;
-            slaveDevice[INDEX_0].resize(INDEX_2);
-            BusNumber = std::stoi(slaveDevice[INDEX_0]);
+            DeviceName = slaveDevice[INDEX_0];
         }
         else if(Processor.compare(SOCKET_1) == SUCCESS)
         {
             DeviceName = slaveDevice[INDEX_1];
-            slaveDevice[INDEX_1].resize(INDEX_2);
-            BusNumber = std::stoi(slaveDevice[INDEX_1]);
         }
+        size_t found = DeviceName.find("-");
+        BusNumber = std::stoi(DeviceName.substr(0, found));
     }
 
     std::string UnbindDriver = "echo " + DeviceName + "> " + DriverPath + "unbind";

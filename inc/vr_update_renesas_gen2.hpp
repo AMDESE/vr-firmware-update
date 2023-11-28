@@ -30,7 +30,7 @@ class vr_update_renesas_gen2: public vr_update
 public:
     vr_update_renesas_gen2(std::string Processor,
           uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath);
+          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision);
 
     virtual bool crcCheckSum();
     virtual bool isUpdatable();
