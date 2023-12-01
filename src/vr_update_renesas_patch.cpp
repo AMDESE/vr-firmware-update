@@ -15,9 +15,9 @@ struct PMBusPayload
    u_int32_t data;
 };
 
-vr_update_renesas_patch::vr_update_renesas_patch(std::string Processor,
-          uint32_t Crc,std::string Model, uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision):
-          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision)
+vr_update_renesas_patch::vr_update_renesas_patch(std::string Processor,uint32_t Crc,
+         std::string Model, uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision,uint16_t PmbusAddress):
+          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision,PmbusAddress)
 {
 
     DriverPath = ISL_DRIVER_PATH;

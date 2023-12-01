@@ -116,6 +116,7 @@ class vr_update {
 
 protected:
     uint16_t SlaveAddress;
+    uint16_t PmbusAddress;
     uint16_t BusNumber;
     uint32_t Crc;
     std::string Processor;
@@ -128,11 +129,11 @@ protected:
 
 public:
  vr_update(std::string Processor,uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision);
+          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision,uint16_t PmbusAddress);
 
  static vr_update* CreateVRFrameworkObject(std::string Model,
               uint16_t SlaveAddress, uint32_t Crc, std::string Processor,
-              std::string configFilePath,std::string UpdateType,std::string Revision);
+              std::string configFilePath,std::string UpdateType,std::string Revision,uint16_t PmbusAddress);
 
     virtual bool isUpdatable() = 0;
     virtual bool findBusNumber();

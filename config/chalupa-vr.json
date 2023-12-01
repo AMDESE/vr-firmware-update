@@ -52,16 +52,19 @@
       },
       {
          "SlaveAddress":"0x13",
+         "PmbusAddress":"0x43",
          "Processor":"None",
          "VrName":"VDD_13_RUN"
       },
       {
          "SlaveAddress":"0x14",
+         "PmbusAddress":"0x44",
          "Processor":"None",
          "VrName":"VDD_33_DUAL"
       },
       {
          "SlaveAddress":"0x15",
+         "PmbusAddress":"0x45",
          "Processor":"None",
          "VrName":"VDD_5_DUAL"
       }
