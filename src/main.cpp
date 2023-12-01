@@ -93,6 +93,7 @@ constexpr auto bundleVersionInterface = "xyz.openbmc_project.Software.BundleVers
 struct bundleInterfaceStruct {
     std::vector<std::string> FirmwareID;
     std::vector<std::string> SlaveAddress;
+    std::vector<std::string> PmbusAddress;
     std::vector<std::string> Processor;
     std::vector<std::string> Status;
     std::vector<std::string> Versions;
@@ -103,7 +104,7 @@ struct bundleInterfaceStruct {
 bundleInterfaceStruct bundleInterfaceObj;
 
 int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
-             std::string Processor,std::string configFilePath, std::string UpdateType,bool *CrcMatched,std::string Revision)
+             std::string Processor,std::string configFilePath, std::string UpdateType,bool *CrcMatched,std::string Revision,uint16_t PmbusAddress)
 {
 
     int ret = FAILURE;
@@ -112,7 +113,7 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
     vr_update* vr_update_obj;
 
     vr_update_obj = vr_update::CreateVRFrameworkObject(Model,
-                    SlaveAddress,Crc,Processor,configFilePath,UpdateType,Revision);
+                    SlaveAddress,Crc,Processor,configFilePath,UpdateType,Revision,PmbusAddress);
 
     if(vr_update_obj != NULL)
     {
@@ -401,6 +402,7 @@ int main(int argc, char* argv[])
     int ret = FAILURE;
     int rc = SUCCESS;
     uint16_t SlaveAddress;
+    uint16_t PmbusAddress = 0;
     std::string BoardName;
     uint32_t Crc;
     std::string version;
@@ -411,6 +413,7 @@ int main(int argc, char* argv[])
     std::string Model;
     std::string  CrcConfig;
     std::string SlaveAddr;
+    std::string PmbusAddr;
 
     sdbusplus::bus::bus bus = sdbusplus::bus::new_default();
 
@@ -452,6 +455,14 @@ int main(int argc, char* argv[])
                     bundleInterfaceObj.Status.push_back("Unknown");
                     bundleInterfaceObj.Checksum.push_back("Unknown");
                     bundleInterfaceObj.UpdateStatus.push_back(false);
+
+                    if(record.contains("PmbusAddress"))
+                    {
+                        bundleInterfaceObj.PmbusAddress.push_back(record["PmbusAddress"]);
+                    }
+                    else {
+                        bundleInterfaceObj.PmbusAddress.push_back("Unknown");
+                    }
                 }
                 setBundleVersionInterface(bus);
             }
@@ -477,6 +488,19 @@ int main(int argc, char* argv[])
                 if(record.contains("SlaveAddress"))
                 {
                     SlaveAddr = record["SlaveAddress"];
+
+                    auto it = std::find(bundleInterfaceObj.SlaveAddress.begin(),bundleInterfaceObj.SlaveAddress.end(),SlaveAddr);
+
+                    if (it != bundleInterfaceObj.SlaveAddress.end())
+                    {
+                        int index = std::distance(bundleInterfaceObj.SlaveAddress.begin(), it);
+
+                        if(bundleInterfaceObj.PmbusAddress[index] != "Unknown")
+                        {
+                            PmbusAddress = std::stoul(bundleInterfaceObj.PmbusAddress[index], nullptr, BASE_16);
+                        }
+                    }
+
                     SlaveAddress = std::stoul(SlaveAddr, nullptr, BASE_16);
                 } else {
                     sd_journal_print(LOG_ERR,"Json file doesnt have slave address. Update aborted\n");
@@ -543,7 +567,7 @@ int main(int argc, char* argv[])
 
                 sd_journal_print(LOG_INFO, "Updating VR for the Slave Address = 0x%x", SlaveAddress);
 
-                ret = vrUpdate(Model,SlaveAddress,Crc,Processor,configFilePath,UpdateType,&CrcMatched,Revision);
+                ret = vrUpdate(Model,SlaveAddress,Crc,Processor,configFilePath,UpdateType,&CrcMatched,Revision,PmbusAddress);
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {

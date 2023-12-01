@@ -39,9 +39,9 @@ protected:
     int NextImgPtr;
 
 public:
-    vr_update_infineon_tda(std::string Processor,
-          uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision);
+    vr_update_infineon_tda(std::string Processor,uint32_t Crc,std::string Model,
+          uint16_t SlaveAddress,std::string ConfigFilePath,
+          std::string Revision,uint16_t PmbusAddress);
 
     virtual bool crcCheckSum();
     virtual bool isUpdatable();
