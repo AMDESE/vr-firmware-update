@@ -13,6 +13,7 @@
 #include "vr_update_renesas_patch.hpp"
 #include "vr_update_xdpe_patch.hpp"
 #include "vr_update_mps.hpp"
+#include "vr_update_mps285x.hpp"
 
 #define MODEL			("Model")
 #define SLAVE_ADDRESS	("SlaveAddress")
@@ -79,10 +80,17 @@ vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
     {
         p = new vr_update_infineon_tda(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
     }
- else if ((strcasecmp(Model.c_str(), MPS2861) == SUCCESS) ||
+    else if ((strcasecmp(Model.c_str(), MPS2861) == SUCCESS) ||
             (strcasecmp(Model.c_str(), MPS2862) == SUCCESS))
     {
+
         p = new vr_update_mps(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+    }
+    else if ((strcasecmp(Model.c_str(), MPS2856) == SUCCESS) ||
+            (strcasecmp(Model.c_str(), MPS2857) == SUCCESS))
+    {
+
+        p = new vr_update_mps285x(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
     }
 	else{
 		sd_journal_print(LOG_ERR, "Invalid Framework\n");
