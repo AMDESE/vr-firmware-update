@@ -262,6 +262,7 @@ bool getBundleVersionInterface(sdbusplus::bus::bus& bus)
           bundleInterfaceObj.Checksum.assign(Checksum.begin(),Checksum.end());
 
           bundleInterfaceObj.UpdateStatus.assign(bundleInterfaceObj.SlaveAddress.size(),false);
+          bundleInterfaceObj.PmbusAddress.assign(bundleInterfaceObj.SlaveAddress.size(),"Unknown");
           return true;
     }
 }
@@ -427,7 +428,7 @@ int main(int argc, char* argv[])
         std::string filePath = argv[INDEX_1];
         std::string vrBundleJsonFile = filePath + "/vrbundle.json";
 
-        if(getBundleVersionInterface(bus) == false)
+        if (!(std::filesystem::exists(VR_PLATFORM_FILE)))
         {
             //Copy platfom specific VR config file
             std::string command = "/usr/sbin/vr-config-info install_vr_platform_config";
@@ -439,6 +440,10 @@ int main(int argc, char* argv[])
                 sd_journal_print(LOG_ERR,"Copying vr-platform-config file failed\n");
                 return FAILURE;
             }
+        }
+
+        if(getBundleVersionInterface(bus) == false)
+        {
 
             if (std::filesystem::exists(VR_PLATFORM_FILE))
             {
@@ -477,6 +482,7 @@ int main(int argc, char* argv[])
             //iterate over the array of VR's
             for (json record : data["VR"])
             {
+
                 if(record.contains("ModelNumber"))
                 {
                     Model = record["ModelNumber"];
@@ -489,19 +495,25 @@ int main(int argc, char* argv[])
                 {
                     SlaveAddr = record["SlaveAddress"];
 
-                    auto it = std::find(bundleInterfaceObj.SlaveAddress.begin(),bundleInterfaceObj.SlaveAddress.end(),SlaveAddr);
-
-                    if (it != bundleInterfaceObj.SlaveAddress.end())
+                    SlaveAddress = std::stoul(SlaveAddr, nullptr, BASE_16);
+                    if (std::filesystem::exists(VR_PLATFORM_FILE))
                     {
-                        int index = std::distance(bundleInterfaceObj.SlaveAddress.begin(), it);
+                        std::ifstream vr_json_file(VR_PLATFORM_FILE);
+                        nlohmann::json vr_data;
+                        vr_json_file >> vr_data;
 
-                        if(bundleInterfaceObj.PmbusAddress[index] != "Unknown")
+                        for (nlohmann::json record : vr_data["VRConfigs"])
                         {
-                            PmbusAddress = std::stoul(bundleInterfaceObj.PmbusAddress[index], nullptr, BASE_16);
+                            if (record["SlaveAddress"] == SlaveAddr)
+                            {
+                                if (record.contains("PmbusAddress"))
+                                {
+                                    std::string PmbusAddr = record["PmbusAddress"];
+                                    PmbusAddress = std::stoul(PmbusAddr, nullptr, BASE_16);
+                                }
+                            }
                         }
                     }
-
-                    SlaveAddress = std::stoul(SlaveAddr, nullptr, BASE_16);
                 } else {
                     sd_journal_print(LOG_ERR,"Json file doesnt have slave address. Update aborted\n");
                     return false;
