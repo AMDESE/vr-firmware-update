@@ -315,6 +315,8 @@ bool vr_update_infineon_tda::UpdateFirmware()
                     user_data = std::stoi(userdata, nullptr, BASE_16);
                     sd_journal_print(LOG_DEBUG, "Index Number = 0x%x User Data = 0x%x\n",index_num,user_data);
 
+                    rc = i2c_smbus_write_byte_data(fd, index_num, user_data);
+
                     if (rc != SUCCESS) {
                         sd_journal_print(LOG_ERR, "Error: Failed to write data\n");
                         return false;
