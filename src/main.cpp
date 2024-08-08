@@ -90,6 +90,10 @@ constexpr auto bundleVersionInterface = "xyz.openbmc_project.Software.BundleVers
 #define VOLCANO_1       116 // 0x74
 #define VOLCANO_2       117 // 0x75
 
+/* Venice Platform IDs */
+#define CONGO           134 // 0x86
+#define MOROCCO         135 // 0x87
+
 struct bundleInterfaceStruct {
     std::vector<std::string> FirmwareID;
     std::vector<std::string> SlaveAddress;
@@ -385,6 +389,14 @@ bool PlatformIDValidation(std::string BoardName)
         else if((board_id == SH5_1P_PWR) || (board_id == SH5_1P_OEM ) || (board_id == SH5_1P_SLT) || (board_id == SH5_1P_OEM_P) || (board_id == SH5_2P_CABLED))
         {
             PlatformName = "SH5";
+        }
+        else if(board_id == CONGO)
+        {
+            PlatformName = "Congo";
+        }
+        else if(board_id == MOROCCO)
+        {
+            PlatformName = "Morocco";
         }
 
 

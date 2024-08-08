@@ -10,11 +10,6 @@
 #define MINARGS           (4)
 #define INT_255           (0xFF)
 
-#define INDEX_40          (0x40)
-#define INDEX_70          (0x70)
-#define INDEX_200         (0x200)
-#define INDEX_2FF         (0x2FF)
-
 /* Applicable Digital Controllers */
 #define PART1             (0x95)
 #define PART2             (0x96)
