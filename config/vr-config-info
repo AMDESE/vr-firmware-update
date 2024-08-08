@@ -56,6 +56,12 @@ install_vr_platform_config()
        "5C" | "5D" | "5E" | "6C" | "6D" |"5F" | "60" ) #sh5 board_ids
           cp /usr/sbin/sh5-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
+       "86") #Congo board_ids
+          cp /usr/sbin/congo-vr.json "$vrConfigFolder/platform-vr.json"
+       ;;
+       "87") #Morocco board_ids
+          cp /usr/sbin/morocco-vr.json "$vrConfigFolder/platform-vr.json"
+       ;;
        esac
 }
 
