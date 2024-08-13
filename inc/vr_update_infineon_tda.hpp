@@ -13,10 +13,6 @@
 #define USER_PROG_CMD 0x00D6
 #define PROG_STATUS_REG 0xD7
 #define USER_READ_CMD 0x41
-#define INDEX_40  0x40
-#define INDEX_70  0x70
-#define INDEX_200 0x200
-#define INDEX_2FF 0x2FF
 #define USER_PROG_STATUS 0x80
 #define CRC_REG_1 0xAE
 #define CRC_REG_2 0xB0

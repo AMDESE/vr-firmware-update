@@ -114,6 +114,10 @@ extern "C"
 #define SLEEP_1               (1000000)
 #define SLEEP_2               (2000000)
 #define SLEEP_1000            (1000)
+#define INDEX_40              (0x40)
+#define INDEX_70              (0x70)
+#define INDEX_200             (0x200)
+#define INDEX_2FF             (0x2FF)
 
 class vr_update {
 

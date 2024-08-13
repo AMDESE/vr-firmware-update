@@ -53,7 +53,7 @@ bool vr_update_mps285x::isUpdatable()
     /*Device ID ID from 9Ah@page0*/
     ret = i2c_smbus_read_i2c_block_data(fd, DEVICE_ID_REG, BYTE_COUNT_4, rdata);
 
-    if(rdata >= SUCCESS)
+    if(ret >= SUCCESS)
     {
         VrDeviceId = ((uint16_t)rdata[INDEX_2] << SHIFT_8) | rdata[INDEX_1];
     }
@@ -66,7 +66,7 @@ bool vr_update_mps285x::isUpdatable()
     /*Config ID from 9Dh@page0*/
     ret = i2c_smbus_read_i2c_block_data(fd, CONFIG_ID_REG, BYTE_COUNT_4, rdata);
 
-    if(rdata >= SUCCESS)
+    if(ret >= SUCCESS)
     {
         VrConfigId = ((uint16_t)rdata[INDEX_2] << SHIFT_8) | rdata[INDEX_1];
     }
