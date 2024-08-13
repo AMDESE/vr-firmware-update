@@ -29,7 +29,7 @@ bool vr_update_mps::crcCheckSum(){
      }
 
     ret = i2c_smbus_read_i2c_block_data(fd, CRC_ADDR, BYTE_COUNT_4, rdata);
-    if (rdata < SUCCESS)
+    if (ret < SUCCESS)
     {
            sd_journal_print(LOG_ERR, "Error: Reading CRC from device failed\n");
            return false;
@@ -80,7 +80,7 @@ bool vr_update_mps::isUpdatable(){
 
     ret = i2c_smbus_read_i2c_block_data(fd, DEVICE_ID_REG, BYTE_COUNT_2, rdata); 
 
-    if(rdata >= SUCCESS)
+    if(ret >= SUCCESS)
     {
         VrDeviceId = (rdata[INDEX_0] << SHIFT_8) | rdata[INDEX_1];
     }
@@ -92,7 +92,7 @@ bool vr_update_mps::isUpdatable(){
 
     ret = i2c_smbus_read_i2c_block_data(fd, CONFIG_ID_REG, BYTE_COUNT_3, rdata);
 
-    if(rdata >= SUCCESS)
+    if(ret >= SUCCESS)
     {
         VrConfigId = (rdata[INDEX_0] << SHIFT_16) | (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_2];
     }
