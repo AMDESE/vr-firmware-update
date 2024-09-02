@@ -34,6 +34,11 @@
          "SlaveAddress":"0x45",
          "Processor":"None",
          "VrName":"VDD_33_RUN"
+      },
+      {
+         "SlaveAddress":"0x48",
+         "Processor":"None",
+         "VrName":"VDD_5_DUAL"
       }
    ]
 }
