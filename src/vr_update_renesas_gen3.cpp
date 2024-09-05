@@ -162,7 +162,7 @@ bool vr_update_renesas_gen3::isUpdatable()
         VrDeviceId = (rdata[INDEX_4] << SHIFT_24) | (rdata[INDEX_3] << SHIFT_16) |
                     (rdata[INDEX_2] << SHIFT_8) | rdata[INDEX_1];
 
-        sd_journal_print(LOG_INFO, "Device ID from the VR = %d\n",VrDeviceId );
+        sd_journal_print(LOG_INFO, "Device ID from the VR = 0x%x\n",VrDeviceId );
     }
     else
     {
@@ -197,7 +197,8 @@ bool vr_update_renesas_gen3::isUpdatable()
 
     if(VrDeviceId == FileDeviceId)
     {
-        sd_journal_print(LOG_INFO, "VR device id and file devie id matched\n");
+        sd_journal_print(LOG_DEBUG, "VR device id and file devie id matched\n");
+        rc = true;
     }
     else
     {
@@ -205,59 +206,6 @@ bool vr_update_renesas_gen3::isUpdatable()
         rc = false;
         goto Clean;
 
-    }
-
-    /*Device revision verification*/
-
-    //Read IC_DEV_REVISION from the device
-    std::fill_n(rdata,MAXIMUM_SIZE,0);
-
-    ret = i2c_smbus_read_i2c_block_data(fd, DEV_REV_REV, BYTE_COUNT_5, rdata);
-
-    if (ret >= SUCCESS)
-    {
-        DeviceRevision = (rdata[INDEX_4] << SHIFT_24) | (rdata[INDEX_3] << SHIFT_16)
-                                      | (rdata[INDEX_2] << SHIFT_8) | rdata[INDEX_1];
-
-        sd_journal_print(LOG_INFO, "Device revision from VR device = 0x%x\n", DeviceRevision);
-    }
-    else
-    {
-        sd_journal_print(LOG_ERR, "Failed to read device revision from the VR device\n");
-        rc = false;
-        goto Clean;
-    }
-
-     /*Read device revison from config file*/
-    if(getline(cFile, line))
-    {
-        std::string Rev = line.substr(INDEX_8, INDEX_8);
-        FileRevision = std::stoull(Rev, nullptr, BASE_16);
-        sd_journal_print(LOG_INFO, "Device revision from config file = 0x%x\n", FileRevision);
-    }
-    else
-    {
-        sd_journal_print(LOG_ERR, "Failed to read device revision from config file\n");
-        rc = false;
-        goto Clean;
-    }
-
-    if(DeviceRevision < DEVICE_REVISION)
-    {
-        sd_journal_print(LOG_ERR, "The device revision number is lesser than 6.0.0.0.Contact Renesas for support\n");
-        rc = false;
-        goto Clean;
-    }
-
-    if(((FileRevision >> SHIFT_24 ) && INT_255) < ((DeviceRevision >> SHIFT_24) && INT_255))
-    {
-        sd_journal_print(LOG_ERR, "File Revision is less than device revision. Aborting the update\n");
-        rc = false;
-    }
-    else
-    {
-        sd_journal_print(LOG_ERR, "Device Revision and File Revision matched\n");
-        rc = true;
     }
 
 Clean:

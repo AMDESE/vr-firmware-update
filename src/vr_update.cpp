@@ -64,7 +64,9 @@ vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
 	else if ((strcasecmp(Model.c_str(), RAA229613) == SUCCESS) ||
             (strcasecmp(Model.c_str(), RAA229625) == SUCCESS) ||
             (strcasecmp(Model.c_str(), RAA229620) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), RAA229621) == SUCCESS)) {
+            (strcasecmp(Model.c_str(), RAA229621) == SUCCESS) ||
+            (strcasecmp(Model.c_str(), RAA229639) == SUCCESS) ||
+            (strcasecmp(Model.c_str(), RAA22964) == SUCCESS)) {
 		p = new vr_update_renesas_gen3(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
 	}
 
