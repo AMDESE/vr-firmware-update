@@ -33,8 +33,7 @@ bool vr_update_infineon_tda::crcCheckSum()
         return false;
     }
 
-    /* Read register 0x0B4 [15:0] + 0x0B6 [15:0] + 0x0B8 [15:0]
-       to determine next USER image pointer*/
+    /* Read register 0x0B8 [15:0] to determine next USER image pointer*/
 
     rdata = i2c_smbus_read_word_data(fd,USER_IMG_PTR3);
     if (rdata < 0)
@@ -45,27 +44,9 @@ bool vr_update_infineon_tda::crcCheckSum()
 
     UserImgPtr = UserImgPtr | rdata;
 
-    rdata = i2c_smbus_read_word_data(fd,USER_IMG_PTR2);
+    sd_journal_print(LOG_INFO, "UserImgPtr: 0x%lx\n", UserImgPtr);
 
-    if (rdata < SUCCESS)
-    {
-        sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
-        return false;
-    }
-
-    UserImgPtr = UserImgPtr | ((uint64_t )rdata << BASE_16) ;
-
-    rdata = i2c_smbus_read_word_data(fd,USER_IMG_PTR1);
-
-    if (rdata < SUCCESS)
-    {
-        sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
-        return false;
-    }
-
-    UserImgPtr = UserImgPtr | ((uint64_t )rdata << INDEX_32) ;
-
-    for(i = INDEX_0 ; i < INDEX_48 ; i++)
+    for(i = INDEX_0 ; i < 15 ; i++)
     {
         if( (UserImgPtr & ( mask << i)) == SUCCESS)
         {
@@ -74,6 +55,7 @@ bool vr_update_infineon_tda::crcCheckSum()
     }
     NextImgPtr = i;
 
+     sd_journal_print(LOG_INFO,"Nextimageptr: %d\n", NextImgPtr);
     /*Check Previous Image CRC*/
 
     /*Send user section command*/
@@ -81,6 +63,7 @@ bool vr_update_infineon_tda::crcCheckSum()
     int UserSectionCmd = USER_READ_CMD;
 
     UserSectionCmd = ( CrcImgPtr << INDEX_8) | UserSectionCmd;
+    sd_journal_print(LOG_INFO, "User command to write to 0xD6 = 0x%x\n ",UserSectionCmd);
 
     rc = i2c_smbus_write_word_data(fd, USER_PROG_CMD , UserSectionCmd);
 
@@ -148,17 +131,16 @@ bool vr_update_infineon_tda::crcCheckSum()
         CrcMatched = false;
     }
 
-
     return true;
 }
 
 bool vr_update_infineon_tda::isUpdatable()
 {
 
-    uint16_t rdata = 0;
+    uint8_t rdata = 0;
     int rc = FAILURE;
 
-    if(NextImgPtr > 40 )
+    if(NextImgPtr > 13 )
     {
         std::cout << "OTP for user section is not available\n";
         return false;
@@ -175,24 +157,14 @@ bool vr_update_infineon_tda::isUpdatable()
 
         /* Read register 0xFD to get the silicon version*/
 
-        rdata = i2c_smbus_read_word_data(fd,SILICON_VER_REG);
+        rdata = i2c_smbus_read_byte_data(fd,SILICON_VER_REG);
         if (rdata < 0)
         {
             sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
             return false ;
         }
 
-        if((rdata == R2_REV1 || rdata == R2_REV2) &&
-            ((strcasecmp(Revision.c_str(), R2_REV)) == SUCCESS))
-        {
-            sd_journal_print(LOG_INFO, "R2 revision matched\n");
-        }
-        else if((rdata == R4_REV1 || rdata == R4_REV2) &&
-            ((strcasecmp(Revision.c_str(), R4_REV)) == SUCCESS))
-        {
-            sd_journal_print(LOG_INFO, "R4 revision matched\n");
-        }
-        else if((rdata == R5_REV1 || rdata == R5_REV2) &&
+        if((rdata == R5_REVISION) &&
             ((strcasecmp(Revision.c_str(), R5_REV)) == SUCCESS))
         {
             sd_journal_print(LOG_INFO, "R5 revision matched\n");
@@ -203,7 +175,6 @@ bool vr_update_infineon_tda::isUpdatable()
             sd_journal_print(LOG_ERR,"VR device silicion revision is not compatible for the update. Aborting the process...\n");
             return false;
         }
-
         return true;
     }
 }
@@ -279,9 +250,11 @@ bool vr_update_infineon_tda::UpdateFirmware()
                             index_range = std::stoi(word, nullptr, BASE_16);
                             if(index_range < INDEX_40)
                                 break;
-                            else if(index_range > INDEX_70 && index_range < INDEX_200)
+                            else if(index_range >= INDEX_80 && index_range < INDEX_200)
                                 break;
-                            else if(index_range > INDEX_2FF)
+                            else if(index_range >= INDEX_300 && index_range < INDEX_380)
+                                break;
+                            else if(index_range >= INDEX_390)
                                 break;
 
                             std::cout << word << std::endl;
@@ -328,7 +301,16 @@ bool vr_update_infineon_tda::UpdateFirmware()
         newfile.close();
     }
 
-    int UserSectionCmd = 0x42;
+    /* Change to page 0 by writing 0 to register 0xFF */
+    rc = i2c_smbus_write_byte_data(fd, PAGE_NUM_REG, INDEX_0);
+
+    if (rc != SUCCESS) {
+        sd_journal_print(LOG_ERR, "Error: Changing page number to 0 failed\n");
+        return false;
+    }
+
+    /*Write programming command 0x3F42 to register 0x00D6*/
+    int UserSectionCmd = 0x3F42;
 
     UserSectionCmd = ( NextImgPtr << INDEX_8) | UserSectionCmd;
 
@@ -341,7 +323,7 @@ bool vr_update_infineon_tda::UpdateFirmware()
     }
 
     /*Wait for 200ms */
-    usleep(200 * 1000);
+    sleep(1);
 
     return true;
 }
