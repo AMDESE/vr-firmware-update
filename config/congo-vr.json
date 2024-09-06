@@ -16,27 +16,32 @@
          "VrName":"P0_VDD_VDDIO_RUN"
       },
       {
-         "SlaveAddress":"0x46",
+         "SlaveAddress":"0x16",
+         "PmbusAddress":"0x46",
          "Processor":"P0",
          "VrName":"P0_VDD_18_S5_RUN"
       },
       {
-         "SlaveAddress":"0x47",
+         "SlaveAddress":"0x17",
+         "PmbusAddress":"0x47",
          "Processor":"P0",
          "VrName":"P0_VDD_33_S5_RUN"
       },
       {
-         "SlaveAddress":"0x43",
+         "SlaveAddress":"0x13",
+         "PmbusAddress":"0x43",
          "Processor":"None",
          "VrName":"VDD_33_DUAL"
       },
       {
-         "SlaveAddress":"0x45",
+         "SlaveAddress":"0x15",
+         "PmbusAddress":"0x45",
          "Processor":"None",
          "VrName":"VDD_33_RUN"
       },
       {
-         "SlaveAddress":"0x48",
+         "SlaveAddress":"0x18",
+         "PmbusAddress":"0x48",
          "Processor":"None",
          "VrName":"VDD_5_DUAL"
       }
