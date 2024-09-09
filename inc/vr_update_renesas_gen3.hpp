@@ -1,7 +1,7 @@
 #ifndef VR_UPDATE_RENESAS_GEN3_H_
 #define VR_UPDATE_RENESAS_GEN3_H_
 
-#define DISABLE_PACKET       (0x00A2)
+#define DISABLE_PACKET       (0x0102)
 #define FINISH_CAPTURE       (0x0002)
 #define DEVICE_FW_VERSION    (0x0030)
 #define HALT_FW              (0x0002)
@@ -10,12 +10,12 @@
 #define FW_WRITE             (0xE6)
 #define DMA_WRITE             0xC7
 #define DMA_READ             (0xC5)
-#define GEN3_CRC_ADDR        0x0094
+#define GEN3_CRC_ADDR        (0x00F8)
 #define GEN3_NVM_SLOT_ADDR   (0x0035)
 #define DEV_ID_CMD           (0xAD)
 #define DEV_REV_REV          (0xAE)
-#define GEN3_BANK_REG        (0x007F)
-#define GEN3_PRGM_STATUS     (0x007E)
+#define GEN3_BANK_REG        (0x0084)
+#define GEN3_PRGM_STATUS     (0x0083)
 #define DEVICE_REVISION      (0x6000000)
 
 #define MAXIMUM_SIZE         (255)
