@@ -26,35 +26,39 @@ bool vr_update_infineon_xdpe::crcCheckSum()
     int rc = FAILURE;
     uint8_t wdata[MAXBUFFERSIZE];
     uint8_t rdata[MAXBUFFERSIZE];
-    int length;
-    int size;
 
     memset(wdata, INDEX_0, MAXBUFFERSIZE);
 
     rc = i2c_smbus_write_block_data(fd, BLOCK_PREFIX, (uint8_t)LENGTHOFBLOCK, wdata);
     if (rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error: Failed to write data\n");
+        sd_journal_print(LOG_ERR,
+        "Error: Failed to write block data: 0x%x 0x%x 0x%x 0x%x using "
+        "PMBUS Cmd: BLOCK_WRITE (0x%x), rc=%d\n",
+        wdata[0], wdata[1], wdata[2], wdata[3], BLOCK_PREFIX, rc);
         return false;
     }
 
     rc = i2c_smbus_write_byte_data(fd, BYTE_PREFIX, GET_CRC);
-
     if (rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error: Failed to write data\n");
+        sd_journal_print(LOG_ERR,
+        "Error: Failed to read CRC using "
+        "MFR Cmd: GET_CRC (0x%x), rc=%d\n",
+        GET_CRC, rc);
         return false;
     }
 
-    /*Wait for 200ms */
-    usleep(200000);
+    /*Wait for 20ms */
+    usleep(GETCRCWAITTIME);
 
-    length = i2c_smbus_read_block_data(fd, BLOCK_PREFIX, rdata);
-
-    if (length > LENGTH_0)
+    rc = i2c_smbus_read_block_data(fd, BLOCK_PREFIX, rdata);
+    if (rc > LENGTH_0)
     {
-        DeviceCrcData = ((uint32_t)rdata[INDEX_3] << SHIFT_24) | ((uint32_t)rdata[INDEX_2] << SHIFT_16)
-                     | ((uint32_t)rdata[INDEX_1] << SHIFT_8) | (uint32_t)rdata[INDEX_0];
+        DeviceCrcData = ((uint32_t)rdata[INDEX_3] << SHIFT_24) | 
+                        ((uint32_t)rdata[INDEX_2] << SHIFT_16) | 
+                        ((uint32_t)rdata[INDEX_1] << SHIFT_8) | 
+                        (uint32_t)rdata[INDEX_0];
     }
     else
     {
@@ -67,13 +71,15 @@ bool vr_update_infineon_xdpe::crcCheckSum()
 
     if(DeviceCrcData == Crc)
     {
-        sd_journal_print(LOG_ERR, "CRC matches with previous image. Skipping the update\n");
+        sd_journal_print(LOG_ERR, 
+        "CRC matches with previous image. Skipping the update\n");
         CrcMatched = true;
         return false;
     }
     else
     {
-        sd_journal_print(LOG_ERR, "CRC didnot match with previous image. Continuing the update\n");
+        sd_journal_print(LOG_ERR, 
+        "CRC didnot match with previous image. Continuing the update\n");
         CrcMatched = false;
     }
     return true;
@@ -84,76 +90,90 @@ bool vr_update_infineon_xdpe::isUpdatable()
 
     uint8_t wdata[MAXBUFFERSIZE];
     uint8_t rdata[MAXBUFFERSIZE];
-    int length;
     int size;
     int rc = FAILURE;
 
-    length = i2c_smbus_read_block_data(fd, DEVICE_ID_CMD, rdata);
+    sd_journal_print(LOG_DEBUG, 
+    "Reading the Product ID and Revision code using " 
+    "PMBus Cmd: IC_DEVICE_ID (0x%x)", DEVICE_ID_CMD);
 
-    if (length > LENGTH_0)
+    rc = i2c_smbus_read_block_data(fd, DEVICE_ID_CMD, rdata);
+    if (rc > LENGTH_0)
     {
         if (rdata[INDEX_1] == PART1 || rdata[INDEX_1] == PART2 ||
-              rdata[INDEX_1] == PART3 || rdata[INDEX_1] == PART4 || rdata[INDEX_1] == PART5)
+              rdata[INDEX_1] == PART3 || rdata[INDEX_1] == PART4 ||
+              rdata[INDEX_1] == PART5 || rdata[INDEX_1] == PART6 ||
+              rdata[INDEX_1] == PART7)
         {
-            sd_journal_print(LOG_INFO, "Infineon device detected....\n");
-        } else {
-            sd_journal_print(LOG_ERR, "Part number = 0x%x. Error: No device detected\n",rdata[INDEX_1]);
+            if (((rdata[INDEX_0]) == REVISION_0) &&
+                ((strcasecmp(Revision.c_str(), REV_A)) == SUCCESS)) 
+            {
+                sd_journal_print(LOG_INFO, "Revision A matched\n");
+            }
+            else if ((rdata[INDEX_0] == REVISION_1) && 
+                ((strcasecmp(Revision.c_str(), REV_B)) == SUCCESS)) 
+            {
+                sd_journal_print(LOG_INFO, "Revision B matched\n");
+            }
+            else if ((rdata[INDEX_0] == REVISION_2) && 
+                ((strcasecmp(Revision.c_str(), REV_C)) == SUCCESS)) 
+            {
+                sd_journal_print(LOG_INFO, "Revision C matched\n");
+            }
+            else if ((rdata[INDEX_0] == REVISION_3) && 
+                ((strcasecmp(Revision.c_str(), REV_D)) == SUCCESS)) 
+            {
+                sd_journal_print(LOG_INFO, "Revision D matched\n");
+            }
+            else 
+            {
+                sd_journal_print(LOG_ERR, 
+                "VR update failed: Invalid revision 0x%x\n", rdata[INDEX_0]);
+                return false;
+            }
+        }
+        else 
+        {
+            sd_journal_print(LOG_ERR, 
+            "VR update failed: Invalid Product ID 0x%x\n", rdata[INDEX_1]);
             return false;
         }
-    } else {
-        sd_journal_print(LOG_ERR, "Error: Read failed\n");
-        return false;
-    }
-
-    /*Check the VR device revision*/
-    length = i2c_smbus_read_block_data(fd, DEVICE_REV_CMD, rdata);
-
-    if (length > LENGTH_0)
+    } 
+    else 
     {
-        uint16_t revId = (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_0];
-
-        if((revId == REVISION_1) && ((strcasecmp(Revision.c_str(), REV_A)) == SUCCESS))
-        {
-            sd_journal_print(LOG_INFO, "Revision A matched\n");
-        }
-        else if((revId == REVISION_2) && ((strcasecmp(Revision.c_str(), REV_B)) == SUCCESS))
-        {
-            sd_journal_print(LOG_INFO," Revision B matched\n");
-        }
-        else
-        {
-            sd_journal_print(LOG_INFO,"Silicon revision from VR device = 0x%x\n",revId);
-            sd_journal_print(LOG_ERR,"VR device silicion revision is not compatible for the update. Aborting the process...\n");
-            return false;
-        }
-    } else {
-        sd_journal_print(LOG_ERR, "Error: Read failed\n");
+        sd_journal_print(LOG_ERR,
+        "Failed to read Product ID and Revision code using PMBus Cmd: "
+        "IC_DEVICE_ID (0x%x)", DEVICE_ID_CMD);
         return false;
     }
 
     /*Check if space available on OTP*/
-
     memset(wdata, INDEX_0, MAXBUFFERSIZE);
 
     rc = i2c_smbus_write_block_data(fd, BLOCK_PREFIX, (uint8_t)LENGTHOFBLOCK, wdata);
-
     if (rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error: Failed to write data\n");
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to write block data: 0x%x 0x%x 0x%x 0x%x using "
+        "PMBUS Cmd: BLOCK_WRITE (0x%x), rc=%d\n", 
+        wdata[0], wdata[1], wdata[2], wdata[3], BLOCK_PREFIX, rc);
         return false;
     }
 
     rc = i2c_smbus_write_byte_data(fd, BYTE_PREFIX, AVAIL_SPACE_BYTE);
-
     if (rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error: Failed to write data\n");
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to read available space using "
+        "MFR Cmd: OTP_PARTITION_SIZE_REMAINING (0x%x), rc=%d\n", 
+        AVAIL_SPACE_BYTE, rc);
         return false;
     }
 
-    length = i2c_smbus_read_block_data(fd, BLOCK_PREFIX, rdata);
-
-    if (length > LENGTH_0)
+    //sleep 1ms
+    usleep(AVAILBYTEWAITTIME);
+    rc = i2c_smbus_read_block_data(fd, BLOCK_PREFIX, rdata);
+    if (rc > LENGTH_0)
     {
         // size = d0 + 256 * d1. Formula provided in Infineon document
         size = (256 * rdata[INDEX_1] + rdata[INDEX_0]);
@@ -161,7 +181,9 @@ bool vr_update_infineon_xdpe::isUpdatable()
     }
     else
     {
-        sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to read block data using "
+        "PMBUS Cmd: BLOCK_READ (0x%x), rc=%d\n", BLOCK_PREFIX, rc);
         return false;
     }
 
@@ -172,7 +194,7 @@ bool vr_update_infineon_xdpe::isUpdatable()
     }
     else
     {
-        sd_journal_print(LOG_ERR, "Proceeding with VR programming\n");
+        sd_journal_print(LOG_INFO, "Proceeding with VR programming\n");
     }
 
     return true;
@@ -299,15 +321,16 @@ int invalidateOtp(uint8_t xv, uint8_t hc,int fd)
     wdata[INDEX_3] = 0x00;
 
     sd_journal_print(LOG_DEBUG, "Invalidate OTP Block Write with cmd 0xfd\n");
-    sd_journal_print(LOG_DEBUG, "%d %d %d %d\n",wdata[INDEX_3],wdata[INDEX_2],wdata[INDEX_1],wdata[INDEX_0]);
+    sd_journal_print(LOG_DEBUG, "data: 0x%x 0x%x 0x%x 0x%x\n",
+                     wdata[INDEX_3], wdata[INDEX_2], wdata[INDEX_1], wdata[INDEX_0]);
 
     rc = i2c_smbus_write_block_data(fd, BLOCK_PREFIX, (uint8_t)LENGTHOFBLOCK, wdata);
-
-    usleep(MINWAITTIME);
-
     if(rc != SUCCESS)
     {
-        perror("Error while writing block data to invalidate OTP");
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to write block data: 0x%x 0x%x 0x%x 0x%x using "
+        "PMBUS Cmd: BLOCK_WRITE (0x%x), rc=%d\n", 
+        wdata[0], wdata[1], wdata[2], wdata[3], BLOCK_PREFIX, rc);
         return FAILURE;
     }
 
@@ -316,11 +339,14 @@ int invalidateOtp(uint8_t xv, uint8_t hc,int fd)
 
     rc = i2c_smbus_write_byte_data(fd, BYTE_PREFIX, INVAL_BYTE);
 
-    usleep(MINWAITTIME);
+    //sleep for 4ms
+    usleep(INVALBYTEWAITTIME);
 
-    if( rc != SUCCESS)
+    if(rc != SUCCESS)
     {
-        perror("Error while writing byte data to invalidate OTP");
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed Invalidate OTP using "
+        "MFR Cmd: OTP_SECTION_INVALIDATE (0x%x), rc=%d\n", INVAL_BYTE, rc);
         return FAILURE;
     }
 
@@ -331,13 +357,50 @@ int writeDataToScratchpad(std::vector<std::string> section,int fd)
 {
     uint8_t wdata[MAXBUFFERSIZE];
     int rc = FAILURE;
-    wdata[INDEX_0] = SPBD0;
-    wdata[INDEX_1] = SPBD1;
-    wdata[INDEX_2] = SPBD2;
-    wdata[INDEX_3] = SPBD3;
+    wdata[INDEX_0] = 0x2;
+    wdata[INDEX_1] = 0x0;
+    wdata[INDEX_2] = 0x0;
+    wdata[INDEX_3] = 0x0;
 
     sd_journal_print(LOG_DEBUG, "ScratchPad Initial Block Write with cmd 0xce\n");
-    sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x 0x%x\n",wdata[INDEX_3],wdata[INDEX_2],wdata[INDEX_1],wdata[INDEX_0]);
+    sd_journal_print(LOG_DEBUG, "data: 0x%x 0x%x 0x%x 0x%x\n", 
+                     wdata[INDEX_3], wdata[INDEX_2], wdata[INDEX_1], wdata[INDEX_0]);
+
+    rc = i2c_smbus_write_block_data(fd, BLOCK_PREFIX, (uint8_t)LENGTHOFBLOCK, wdata);
+    if(rc != SUCCESS)
+    {
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to write block data: 0x%x 0x%x 0x%x 0x%x using "
+        "PMBUS Cmd: BLOCK_WRITE (0x%x), rc=%d\n",
+        wdata[0], wdata[1], wdata[2], wdata[3], BLOCK_PREFIX, rc);
+        return FAILURE;
+    }
+
+    rc = i2c_smbus_write_byte_data(fd, BYTE_PREFIX, GET_FW_ADDRESS);
+    if(rc != SUCCESS)
+    {
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to retrieve SCPAD address using " 
+        "MFR Cmd: (0x%x)\n", GET_FW_ADDRESS);
+        return FAILURE;
+    }
+
+    memset(wdata, INDEX_0, MAXBUFFERSIZE);
+
+    //sleep 500us
+    usleep(GETFWADDRWAITTIME);
+
+    rc = i2c_smbus_read_block_data(fd, BLOCK_PREFIX, wdata);
+    if(rc <= LENGTH_0)
+    {
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to read SCPAD address using"
+        "PMBUS Cmd: BLOCK_READ (0x%x), rc=%d\n", BLOCK_PREFIX, rc);
+        return FAILURE;
+    }
+
+    sd_journal_print(LOG_DEBUG, "SCPAD Address 0x%x 0x%x 0x%x 0x%x\n", 
+                    wdata[INDEX_3], wdata[INDEX_2], wdata[INDEX_1], wdata[INDEX_0]);
 
     rc = i2c_smbus_write_block_data(fd, RPTR, (uint8_t)LENGTHOFBLOCK, wdata);
 
@@ -345,7 +408,8 @@ int writeDataToScratchpad(std::vector<std::string> section,int fd)
 
     if(rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error while writing initial block data request to scratchpad\n");
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to write SCPAD Address to RPTR, rc=%d\n", rc);
         return FAILURE;
     }
 
@@ -360,13 +424,16 @@ int writeDataToScratchpad(std::vector<std::string> section,int fd)
         sdata[INDEX_2] = dword[INDEX_2];
         sdata[INDEX_3] = dword[INDEX_3];
 
-        sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x 0x%x\n",sdata[INDEX_0],sdata[INDEX_1],sdata[INDEX_2],sdata[INDEX_3]);
+        sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x 0x%x\n",
+                        sdata[INDEX_0], sdata[INDEX_1], sdata[INDEX_2], sdata[INDEX_3]);
 
         rc = i2c_smbus_write_block_data(fd, MFR_REG_WRITE, (uint8_t)LENGTHOFBLOCK, sdata);
         usleep(MINWAITTIME);
         if(rc !=SUCCESS)
         {
-            sd_journal_print(LOG_ERR, "Error while writing block data request to scratchpad\n");
+            sd_journal_print(LOG_ERR, 
+            "Error: Failed to write to SCPAD MFR_Reg: (0x%x), rc=%d\n",
+            MFR_REG_WRITE, rc);
             return FAILURE;
         }
     }
@@ -388,29 +455,33 @@ int uploadDataToOtp(std::string s_dword, bool pmbus_section, int fd)
     }
 
     sd_journal_print(LOG_DEBUG, "Upload Block Data to OTP with cmd 0xfd\n");
-    sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x 0x%x\n",wdata[INDEX_3],wdata[INDEX_2],wdata[INDEX_1],wdata[INDEX_0]);
+    sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x 0x%x\n",
+                    wdata[INDEX_3], wdata[INDEX_2], wdata[INDEX_1], wdata[INDEX_0]);
 
     rc = i2c_smbus_write_block_data(fd, BLOCK_PREFIX, (uint8_t)LENGTHOFBLOCK, wdata);
 
     usleep(MINWAITTIME);
 
-    if ( rc != SUCCESS)
+    if (rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error while uploading block data from scratchpad to OTP\n");
+        sd_journal_print(LOG_ERR, 
+        "Error: Failed to write block data: 0x%x 0x%x 0x%x 0x%x using" 
+        "PMBUS Cmd: BLOCK_WRITE (0x%x), rc=%d\n", 
+        wdata[0], wdata[1], wdata[2], wdata[3], BLOCK_PREFIX, rc);
         return FAILURE;
     }
 
     sd_journal_print(LOG_DEBUG, "Upload Byte data to OTP with cmd 0xfe\n");
 
-
     rc = i2c_smbus_write_byte_data(fd, BYTE_PREFIX, UPLOAD_BYTE);
 
     usleep(MAXWAITTIME);
 
-    if ( rc != SUCCESS)
+    if (rc != SUCCESS)
     {
         sd_journal_print(LOG_ERR,
-            "Error while executing byte write command for uploading data from scratchpad to OTP\n");
+        "Error: Failed to upload from scratchpad to OTP using" 
+        "MFR Cmd: OTP_CONFIG_STORE (0x%x), rc=%d\n", UPLOAD_BYTE, rc);
         return FAILURE;
     }
     return SUCCESS;
@@ -422,7 +493,8 @@ bool vr_update_infineon_xdpe::UpdateFirmware()
 
     std::vector<std::vector<std::string>> sections = parseCfgFile(ConfigFilePath);
 
-    std::string trim_header = "00000002";    // Trim header programming needs to be ignored according to Infineon FAE
+    // Trim header programming needs to be ignored according to Infineon FAE
+    std::string trim_header = TRIM_HEADER_CODE;
     for(int i=0; i < sections.size(); i++)
     {
         bool pmbus_section = false;
@@ -436,14 +508,16 @@ bool vr_update_infineon_xdpe::UpdateFirmware()
 
         exit_status=invalidateOtp(xvhc[INDEX_1], xvhc[INDEX_0], fd);
         if(exit_status != SUCCESS) {
-            sd_journal_print(LOG_ERR, "Invalidate OTP Data has failed. Skipping other steps\n");
+            sd_journal_print(LOG_ERR, 
+            "Invalidate OTP Data has failed. Skipping other steps\n");
             return false;
         }
 
         exit_status=writeDataToScratchpad(sections[i],fd);
         if(exit_status != SUCCESS)
         {
-            sd_journal_print(LOG_ERR, "Writing Data to Scratchpad has failed. Skipping other steps\n");
+            sd_journal_print(LOG_ERR, 
+            "Writing Data to Scratchpad has failed. Skipping other steps\n");
             return false;
         }
 

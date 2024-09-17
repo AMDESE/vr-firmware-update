@@ -7,8 +7,13 @@
 #define MINOTPSIZE        (6000)
 #define MINWAITTIME       (2000)
 #define MAXWAITTIME       (500000)
+#define GETCRCWAITTIME    (20000)
+#define AVAILBYTEWAITTIME (1000)
+#define INVALBYTEWAITTIME (4000)
+#define GETFWADDRWAITTIME (500)
 #define MINARGS           (4)
 #define INT_255           (0xFF)
+#define TRIM_HEADER_CODE  "00000002"
 
 /* Applicable Digital Controllers */
 #define PART1             (0x95)
@@ -16,11 +21,12 @@
 #define PART3             (0x97)
 #define PART4             (0x98)
 #define PART5             (0x99)
+#define PART6             (0xae)
+#define PART7             (0xa5)
 
 /* CMD PREFIX */
 
 #define DEVICE_ID_CMD     (0xad)
-#define DEVICE_REV_CMD    (0xae)
 #define RPTR              (0xce)
 #define MFR_REG_WRITE     (0xde)
 #define MFR_REG_READ      (0xdf)
@@ -37,6 +43,7 @@
 #define USER_PROG_CMD     (0x00D6)
 #define PROG_STATUS_REG   (0xD7)
 #define USER_READ_CMD     (0x41)
+#define GET_FW_ADDRESS    (0x2e)
 
 /* BYTE DATA */
 #define AVAIL_SPACE_BYTE  (0x10)
@@ -50,18 +57,17 @@
 #define DDBD2             (0x00)
 #define DDBD3             (0x70)
 
-/* SCRATCHPAD BLOCK DATA (SPBD) */
-#define SPBD0             (0x00)
-#define SPBD1             (0xe0)
-#define SPBD2             (0x05)
-#define SPBD3             (0x20)
-
 #define USER_PROG_STATUS  (0x80)
 
 #define REV_A             ("RevA")
 #define REV_B             ("RevB")
-#define REVISION_2        (0x0101)
-#define REVISION_1        (0x0303)
+#define REV_C             ("RevC")
+#define REV_D             ("RevD")
+
+#define REVISION_0        (0x0)
+#define REVISION_1        (0x1)
+#define REVISION_2        (0x2)
+#define REVISION_3        (0x3)
 
 class vr_update_infineon_xdpe: public vr_update
 {
