@@ -50,6 +50,7 @@ extern "C"
 #define RAA229621             ("RAA229621")
 #define ISL68220              ("ISL68220")
 #define RAA229639             ("RAA229639")
+#define RAA229641             ("RAA229641")
 #define RAA22964              ("RAA22964")
 #define RENESAS               ("RENESAS")
 #define INFINEON_XDPE         ("XDPE")
