@@ -62,6 +62,8 @@ install_vr_platform_config()
        "82" | "83" | "87") #Morocco board_ids
           cp /usr/sbin/morocco-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
+       "84") #kenya board_ids
+          cp /usr/sbin/kenya-vr.json "$vrConfigFolder/platform-vr.json"
        esac
 }
 
