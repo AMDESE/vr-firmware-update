@@ -42,6 +42,8 @@ extern "C"
 #define	MPS2862				("MPS2862")
 #define MPS2857             ("MPS2857")
 #define MPS2856             ("MPS2856")
+#define MP2869              ("MP2869")
+#define MP29608             ("MP29608")
 #define GEN2                  ("GEN2")
 #define GEN3                  ("GEN3")
 #define RAA229613             ("RAA229613")
@@ -111,6 +113,7 @@ extern "C"
 
 #define ISL_DRIVER_PATH       ("/sys/bus/i2c/drivers/isl68137/")
 #define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/mp2975/")
+#define MPS2856_DRIVER_PATH   ("/sys/bus/i2c/drivers/mp2856/")
 #define MPS2857_DRIVER_PATH   ("/sys/bus/i2c/drivers/mp2857/")
 #define XDPE_DRIVER_PATH      ("/sys/bus/i2c/drivers/xdpe12284/")
 #define PMBUS_DRIVER_PATH     ("/sys/bus/i2c/drivers/pmbus/")

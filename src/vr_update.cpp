@@ -14,6 +14,7 @@
 #include "vr_update_xdpe_patch.hpp"
 #include "vr_update_mps.hpp"
 #include "vr_update_mps285x.hpp"
+#include "vr_update_mp2869.hpp"
 
 #define MODEL			("Model")
 #define SLAVE_ADDRESS	("SlaveAddress")
@@ -94,6 +95,12 @@ vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
     {
 
         p = new vr_update_mps285x(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+    }
+    else if ((strcasecmp(Model.c_str(), MP2869) == SUCCESS) ||
+            (strcasecmp(Model.c_str(), MP29608) == SUCCESS))
+    {
+
+        p = new vr_update_mp2869(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
     }
 	else{
 		sd_journal_print(LOG_ERR, "Invalid Framework\n");
