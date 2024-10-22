@@ -101,6 +101,8 @@ constexpr auto bundleVersionInterface = "xyz.openbmc_project.Software.BundleVers
 
 #define KENYA           132 // 0x84
 
+#define NIGERIA         133 // 0x85
+
 struct bundleInterfaceStruct {
     std::vector<std::string> FirmwareID;
     std::vector<std::string> SlaveAddress;
@@ -408,6 +410,10 @@ bool PlatformIDValidation(std::string BoardName)
         else if(board_id == KENYA)
         {
             PlatformName = "Kenya";
+        }
+        else if(board_id == NIGERIA)
+        {
+            PlatformName = "Nigeria";
         }
 
         if ((strcasecmp(BoardName.c_str(), PlatformName.c_str())) != SUCCESS)
