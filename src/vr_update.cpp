@@ -1,44 +1,46 @@
 /*
-* vr-update.cpp
-*
-* Created on: Nov 10, 2022
-* Author: Abinaya Dhandapani
-*/
+ * vr-update.cpp
+ *
+ * Created on: Nov 10, 2022
+ * Author: Abinaya Dhandapani
+ */
 
 #include "vr_update.hpp"
+
 #include "vr_update_infineon_tda.hpp"
 #include "vr_update_infineon_xdpe.hpp"
+#include "vr_update_mp2869.hpp"
+#include "vr_update_mps.hpp"
+#include "vr_update_mps285x.hpp"
 #include "vr_update_renesas_gen2.hpp"
 #include "vr_update_renesas_gen3.hpp"
 #include "vr_update_renesas_patch.hpp"
 #include "vr_update_xdpe_patch.hpp"
-#include "vr_update_mps.hpp"
-#include "vr_update_mps285x.hpp"
-#include "vr_update_mp2869.hpp"
 
-#define MODEL			("Model")
-#define SLAVE_ADDRESS	("SlaveAddress")
-#define PROCESSOR		("Processor")
-#define CRC				("CRC")
+#define MODEL ("Model")
+#define SLAVE_ADDRESS ("SlaveAddress")
+#define PROCESSOR ("Processor")
+#define CRC ("CRC")
 
 namespace fs = std::filesystem;
 
-vr_update::vr_update(std::string Processor,uint32_t Crc,std::string Model,
-           uint16_t SlaveAddress, std::string ConfigFilePath,std::string Revision,uint16_t PmbusAddress) :
-           Processor(Processor),Crc(Crc), Model(Model),
-           SlaveAddress(SlaveAddress), ConfigFilePath(ConfigFilePath) , Revision(Revision) , PmbusAddress(PmbusAddress)
+vr_update::vr_update(std::string Processor, uint32_t Crc, std::string Model,
+                     uint16_t SlaveAddress, std::string ConfigFilePath,
+                     std::string Revision, uint16_t PmbusAddress) :
+    Processor(Processor), Crc(Crc), Model(Model), SlaveAddress(SlaveAddress),
+    ConfigFilePath(ConfigFilePath), Revision(Revision),
+    PmbusAddress(PmbusAddress)
 {
-
     BusNumber = 0;
     fd = FAILURE;
-
 }
 
-vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
-              uint16_t SlaveAddress, uint32_t Crc, std::string Processor,
-              std::string configFilePath,std::string UpdateType,std::string Revision,uint16_t PmbusAddress)
+vr_update* vr_update::CreateVRFrameworkObject(
+    std::string Model, uint16_t SlaveAddress, uint32_t Crc,
+    std::string Processor, std::string configFilePath, std::string UpdateType,
+    std::string Revision, uint16_t PmbusAddress)
 {
-	vr_update* p;
+    vr_update* p;
     if ((strcasecmp(UpdateType.c_str(), PATCH)) == SUCCESS)
     {
         if ((strcasecmp(Model.c_str(), RAA229613) == SUCCESS) ||
@@ -48,82 +50,94 @@ vr_update* vr_update::CreateVRFrameworkObject(std::string Model,
             (strcasecmp(Model.c_str(), ISL68220) == SUCCESS) ||
             (strcasecmp(Model.c_str(), RENESAS) == SUCCESS))
         {
-            sd_journal_print(LOG_INFO,"Renesas patch update triggered\n");
-            p = new vr_update_renesas_patch(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+            sd_journal_print(LOG_INFO, "Renesas patch update triggered\n");
+            p = new vr_update_renesas_patch(Processor, Crc, Model, SlaveAddress,
+                                            configFilePath, Revision,
+                                            PmbusAddress);
         }
         else if (strcasecmp(Model.c_str(), INFINEON_XDPE) == SUCCESS)
         {
-           sd_journal_print(LOG_INFO,"XDPE patch update triggered\n");
-           p = new vr_update_xdpe_patch(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+            sd_journal_print(LOG_INFO, "XDPE patch update triggered\n");
+            p = new vr_update_xdpe_patch(Processor, Crc, Model, SlaveAddress,
+                                         configFilePath, Revision,
+                                         PmbusAddress);
         }
-        else {
-           sd_journal_print(LOG_ERR, "Invalid framework\n");
-           return NULL;
+        else
+        {
+            sd_journal_print(LOG_ERR, "Invalid framework\n");
+            return NULL;
         }
-
     }
-	else if ((strcasecmp(Model.c_str(), RAA229613) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), RAA229625) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), RAA229620) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), RAA229621) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), RAA229639) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), RAA22964) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), RAA229641) == SUCCESS)) {
-		p = new vr_update_renesas_gen3(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
-	}
-
-	else if (strcasecmp(Model.c_str(), ISL68220) == SUCCESS) {
-		p = new vr_update_renesas_gen2(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
-	}
-
-	else if (strcasecmp(Model.c_str(), INFINEON_XDPE) == SUCCESS)
+    else if ((strcasecmp(Model.c_str(), RAA229613) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), RAA229625) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), RAA229620) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), RAA229621) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), RAA229639) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), RAA22964) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), RAA229641) == SUCCESS))
     {
-		p = new vr_update_infineon_xdpe(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+        p = new vr_update_renesas_gen3(Processor, Crc, Model, SlaveAddress,
+                                       configFilePath, Revision, PmbusAddress);
+    }
+
+    else if (strcasecmp(Model.c_str(), ISL68220) == SUCCESS)
+    {
+        p = new vr_update_renesas_gen2(Processor, Crc, Model, SlaveAddress,
+                                       configFilePath, Revision, PmbusAddress);
+    }
+
+    else if (strcasecmp(Model.c_str(), INFINEON_XDPE) == SUCCESS)
+    {
+        p = new vr_update_infineon_xdpe(Processor, Crc, Model, SlaveAddress,
+                                        configFilePath, Revision, PmbusAddress);
     }
     else if (strcasecmp(Model.c_str(), INFINEON_TDA) == SUCCESS)
     {
-        p = new vr_update_infineon_tda(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+        p = new vr_update_infineon_tda(Processor, Crc, Model, SlaveAddress,
+                                       configFilePath, Revision, PmbusAddress);
     }
     else if ((strcasecmp(Model.c_str(), MPS2861) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), MPS2862) == SUCCESS))
+             (strcasecmp(Model.c_str(), MPS2862) == SUCCESS))
     {
-
-        p = new vr_update_mps(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+        p = new vr_update_mps(Processor, Crc, Model, SlaveAddress,
+                              configFilePath, Revision, PmbusAddress);
     }
     else if ((strcasecmp(Model.c_str(), MPS2856) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), MPS2857) == SUCCESS))
+             (strcasecmp(Model.c_str(), MPS2857) == SUCCESS))
     {
-
-        p = new vr_update_mps285x(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+        p = new vr_update_mps285x(Processor, Crc, Model, SlaveAddress,
+                                  configFilePath, Revision, PmbusAddress);
     }
     else if ((strcasecmp(Model.c_str(), MP2869) == SUCCESS) ||
-            (strcasecmp(Model.c_str(), MP29608) == SUCCESS))
+             (strcasecmp(Model.c_str(), MP29608) == SUCCESS))
     {
-
-        p = new vr_update_mp2869(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+        p = new vr_update_mp2869(Processor, Crc, Model, SlaveAddress,
+                                 configFilePath, Revision, PmbusAddress);
     }
-	else{
-		sd_journal_print(LOG_ERR, "Invalid Framework\n");
-		return NULL;
-	}
-	return p;
+    else
+    {
+        sd_journal_print(LOG_ERR, "Invalid Framework\n");
+        return NULL;
+    }
+    return p;
 }
 
 bool vr_update::findBusNumber()
 {
-
     /*Find bus number from the drivers binded*/
-    DIR *dir;
-    struct dirent *entry;
+    DIR* dir;
+    struct dirent* entry;
     std::vector<std::string> slaveDevice;
     std::string DeviceName;
 
     std::stringstream ss;
 
-    if(PmbusAddress == 0)
+    if (PmbusAddress == 0)
     {
         ss << std::hex << SlaveAddress;
-    } else {
+    }
+    else
+    {
         ss << std::hex << PmbusAddress;
     }
     std::string SlaveAddrStr = ss.str();
@@ -135,24 +149,25 @@ bool vr_update::findBusNumber()
         {
             std::string fname = entry->d_name;
 
-            if(fname.find("00" + SlaveAddrStr) != std::string::npos)
+            if (fname.find("00" + SlaveAddrStr) != std::string::npos)
             {
                 slaveDevice.push_back(fname);
             }
         }
         closedir(dir);
 
-        if(slaveDevice.empty())
+        if (slaveDevice.empty())
         {
             return false;
         }
-        std::sort(slaveDevice.begin(),slaveDevice.end());
+        std::sort(slaveDevice.begin(), slaveDevice.end());
 
-        if((Processor.compare(SOCKET_0) == SUCCESS) || (slaveDevice.size() == 1))
+        if ((Processor.compare(SOCKET_0) == SUCCESS) ||
+            (slaveDevice.size() == 1))
         {
             DeviceName = slaveDevice[INDEX_0];
         }
-        else if(Processor.compare(SOCKET_1) == SUCCESS)
+        else if (Processor.compare(SOCKET_1) == SUCCESS)
         {
             DeviceName = slaveDevice[INDEX_1];
         }
@@ -160,11 +175,12 @@ bool vr_update::findBusNumber()
         BusNumber = std::stoi(DeviceName.substr(0, found));
     }
 
-    std::string UnbindDriver = "echo " + DeviceName + "> " + DriverPath + "unbind";
+    std::string UnbindDriver =
+        "echo " + DeviceName + "> " + DriverPath + "unbind";
 
     system(UnbindDriver.c_str());
 
-    if(BusNumber != 0)
+    if (BusNumber != 0)
     {
         return true;
     }
@@ -176,7 +192,6 @@ bool vr_update::findBusNumber()
 
 bool vr_update::openI2cDevice()
 {
-
     char i2cDeviceName[FILE_PATH_SIZE];
     bool rc = false;
 
@@ -186,7 +201,7 @@ bool vr_update::openI2cDevice()
     std::cout << i2cDeviceName << std::endl;
     fd = open(i2cDeviceName, O_RDWR);
 
-    if(fd != FAILURE)
+    if (fd != FAILURE)
     {
         if (ioctl(fd, I2C_SLAVE, SlaveAddress) != FAILURE)
         {
@@ -197,7 +212,9 @@ bool vr_update::openI2cDevice()
             sd_journal_print(LOG_ERR, "Error: Failed setting i2c dev addr\n");
             rc = false;
         }
-    } else {
+    }
+    else
+    {
         sd_journal_print(LOG_ERR, "Error: failed to open VR device\n");
         rc = false;
     }
@@ -208,14 +225,15 @@ bool vr_update::openI2cDevice()
 
 void vr_update::closeI2cDevice()
 {
-    if (fd >= SUCCESS) {
+    if (fd >= SUCCESS)
+    {
         close(fd);
     }
     fd = FAILURE;
 
     std::stringstream ss;
 
-    if(PmbusAddress == 0)
+    if (PmbusAddress == 0)
     {
         ss << std::hex << SlaveAddress;
     }
@@ -232,5 +250,4 @@ void vr_update::closeI2cDevice()
     system(BindDriver.c_str());
 
     sd_journal_print(LOG_INFO, "Binded driver back after VR update\n");
-
 }
