@@ -288,8 +288,8 @@ bool vr_update_mps::UpdateFirmware()
             {
                 sd_journal_print(
                     LOG_ERR,
-                    "Error: Writing word data to the device failed   %x   %x\n",
-                    Register, rxdata);
+                    "Error: Writing word data to the device failed   %x \n",
+                    Register);
                 cFile.close();
                 return FAILURE;
             }

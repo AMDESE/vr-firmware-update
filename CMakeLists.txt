@@ -14,6 +14,7 @@ set(SRC_FILES src/main.cpp
               src/vr_update_renesas_gen3.cpp 
               src/vr_update_renesas_gen2.cpp 
               src/vr_update_renesas_patch.cpp
+              src/vr_update_renesas_gen3p5_patch.cpp
               src/vr_update_xdpe_patch.cpp 
               src/vr_update_infineon_xdpe.cpp 
               src/vr_update_infineon_tda.cpp

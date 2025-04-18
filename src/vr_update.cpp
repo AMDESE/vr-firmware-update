@@ -14,6 +14,7 @@
 #include "vr_update_mps285x.hpp"
 #include "vr_update_renesas_gen2.hpp"
 #include "vr_update_renesas_gen3.hpp"
+#include "vr_update_renesas_gen3p5_patch.hpp"
 #include "vr_update_renesas_patch.hpp"
 #include "vr_update_xdpe_patch.hpp"
 
@@ -38,7 +39,7 @@ vr_update::vr_update(std::string Processor, uint32_t Crc, std::string Model,
 vr_update* vr_update::CreateVRFrameworkObject(
     std::string Model, uint16_t SlaveAddress, uint32_t Crc,
     std::string Processor, std::string configFilePath, std::string UpdateType,
-    std::string Revision, uint16_t PmbusAddress)
+    std::string Revision, uint16_t PmbusAddress, std::vector<std::string>& configFilePathArr)
 {
     vr_update* p;
     if ((strcasecmp(UpdateType.c_str(), PATCH)) == SUCCESS)
@@ -54,6 +55,15 @@ vr_update* vr_update::CreateVRFrameworkObject(
             p = new vr_update_renesas_patch(Processor, Crc, Model, SlaveAddress,
                                             configFilePath, Revision,
                                             PmbusAddress);
+        }
+        else if ((strcasecmp(Model.c_str(), RAA229639) == SUCCESS) ||
+                 (strcasecmp(Model.c_str(), RAA229641) == SUCCESS))
+        {
+            sd_journal_print(LOG_INFO,
+                             "Renesas Gen3.5 patch update triggered\n");
+            p = new vr_update_renesas_gen3p5_patch(
+                Processor, Crc, Model, SlaveAddress, configFilePath, Revision,
+                PmbusAddress,configFilePathArr);
         }
         else if (strcasecmp(Model.c_str(), INFINEON_XDPE) == SUCCESS)
         {
