@@ -53,6 +53,8 @@ extern "C"
 #define RAA229641 ("RAA229641")
 #define RAA22964 ("RAA22964")
 #define RENESAS ("RENESAS")
+#define RAA229639 ("RAA229639")
+#define RAA229641 ("RAA229641")
 #define INFINEON_XDPE ("XDPE")
 #define INFINEON_TDA ("TDA")
 #define PATCH ("PATCH")
@@ -146,7 +148,8 @@ class vr_update
     static vr_update* CreateVRFrameworkObject(
         std::string Model, uint16_t SlaveAddress, uint32_t Crc,
         std::string Processor, std::string configFilePath,
-        std::string UpdateType, std::string Revision, uint16_t PmbusAddress);
+        std::string UpdateType, std::string Revision, uint16_t PmbusAddress,
+        std::vector<std::string>& configFilePathArr);
 
     virtual bool isUpdatable() = 0;
     virtual bool findBusNumber();

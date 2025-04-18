@@ -129,7 +129,7 @@ bundleInterfaceStruct bundleInterfaceObj;
 int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
              std::string Processor, std::string configFilePath,
              std::string UpdateType, bool* CrcMatched, std::string Revision,
-             uint16_t PmbusAddress)
+             uint16_t PmbusAddress, std::vector<std::string>& configFilePathArr)
 {
     int ret = FAILURE;
 
@@ -138,7 +138,7 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
 
     vr_update_obj = vr_update::CreateVRFrameworkObject(
         Model, SlaveAddress, Crc, Processor, configFilePath, UpdateType,
-        Revision, PmbusAddress);
+        Revision, PmbusAddress, configFilePathArr);
 
     if (vr_update_obj != NULL)
     {
@@ -446,6 +446,17 @@ bool PlatformIDValidation(std::string BoardName)
     return true;
 }
 
+inline void trim(std::string& str)
+{
+    str.erase(str.begin(),
+              std::find_if(str.begin(), str.end(),
+                           [](unsigned char ch) { return !std::isspace(ch); }));
+    str.erase(std::find_if(str.rbegin(), str.rend(),
+                           [](unsigned char ch) { return !std::isspace(ch); })
+                  .base(),
+              str.end());
+}
+
 int main(int argc, char* argv[])
 {
     int ret = FAILURE;
@@ -458,6 +469,7 @@ int main(int argc, char* argv[])
     std::string UpdateType;
     std::string Revision;
     std::string configFilePath;
+    std::vector<std::string> configFilePathArr;
     std::string Processor;
     std::string Model;
     std::string CrcConfig;
@@ -623,6 +635,35 @@ int main(int argc, char* argv[])
                     return false;
                 }
 
+                if (record.contains("ConfigFile"))
+                {
+                    std::string configFileName = record["ConfigFile"];
+                    // Check if the ConfigFile contains multiple file names
+                    if (configFileName.find(',') != std::string::npos)
+                    {
+                        std::string fileName;
+                        std::stringstream ss(configFileName);
+
+                        while (std::getline(ss, fileName, ','))
+                        {
+                            trim(fileName);
+                            configFilePathArr.push_back(
+                                filePath + '/' + fileName);
+                        }
+                    }
+                    else
+                    {
+                        configFilePath = filePath + '/' + configFileName;
+                    }
+                }
+                else
+                {
+                    sd_journal_print(
+                        LOG_ERR,
+                        "Json file doesnt have ConfigFile details. Update aborted\n");
+                    return false;
+                }
+
                 if (record.contains("Version"))
                 {
                     version = record["Version"];
@@ -662,7 +703,7 @@ int main(int argc, char* argv[])
 
                 ret = vrUpdate(Model, SlaveAddress, Crc, Processor,
                                configFilePath, UpdateType, &CrcMatched,
-                               Revision, PmbusAddress);
+                               Revision, PmbusAddress, configFilePathArr);
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
