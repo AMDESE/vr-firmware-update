@@ -106,6 +106,12 @@ constexpr auto bundleVersionInterface =
 
 #define NIGERIA 133   // 0x85
 
+/*Venice SLT boards*/
+#define SENEGAL_SLT 136 // 0x88
+#define ZAMBIA 139      // 0x8B
+#define ZIMBABWE 140    // 0x8C
+#define ZANZIBAR 141    // 0x8D
+
 struct bundleInterfaceStruct
 {
     std::vector<std::string> FirmwareID;
@@ -408,7 +414,9 @@ bool PlatformIDValidation(std::string BoardName)
             PlatformName = "SH5";
         }
         else if ((board_id == CONGO) || (board_id == CONGO_1) ||
-                 (board_id == CONGO_2))
+                 (board_id == CONGO_2) || (board_id == SENEGAL_SLT) ||
+                 (board_id == ZAMBIA) || (board_id == ZIMBABWE) ||
+                 (board_id == ZANZIBAR))
         {
             PlatformName = "Congo";
         }
