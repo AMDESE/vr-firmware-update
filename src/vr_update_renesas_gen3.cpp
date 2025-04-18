@@ -1,39 +1,44 @@
 /*
-* vr_update_renesas_gen3.cpp
-*
-* Created on: Nov 10, 2022
-* Author: Abinaya Dhandapani
-*/
+ * vr_update_renesas_gen3.cpp
+ *
+ * Created on: Nov 10, 2022
+ * Author: Abinaya Dhandapani
+ */
 
 #include "vr_update.hpp"
 #include "vr_update_renesas_gen3.hpp"
 
-vr_update_renesas_gen3::vr_update_renesas_gen3(std::string Processor,uint32_t Crc,
-          std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision,uint16_t PmbusAddress):
-          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision,PmbusAddress)
+vr_update_renesas_gen3::vr_update_renesas_gen3(
+    std::string Processor, uint32_t Crc, std::string Model,
+    uint16_t SlaveAddress, std::string ConfigFilePath, std::string Revision,
+    uint16_t PmbusAddress) :
+    vr_update(Processor, Crc, Model, SlaveAddress, ConfigFilePath, Revision,
+              PmbusAddress)
 {
-
     DriverPath = ISL_DRIVER_PATH;
 }
 
 bool vr_update_renesas_gen3::crcCheckSum()
 {
-    u_int8_t rdata[MAXIMUM_SIZE] = { 0 };
+    u_int8_t rdata[MAXIMUM_SIZE] = {0};
     u_int32_t DeviceCrc;
     int ret = FAILURE;
 
-    //write to DMA Address Register
-    ret = i2c_smbus_write_word_data(fd,DMA_WRITE,GEN3_CRC_ADDR );
-    if(ret == SUCCESS)
+    // write to DMA Address Register
+    ret = i2c_smbus_write_word_data(fd, DMA_WRITE, GEN3_CRC_ADDR);
+    if (ret == SUCCESS)
     {
-        ret = i2c_smbus_read_i2c_block_data(fd,DMA_READ, BYTE_COUNT_4, rdata);
-        if(ret >= SUCCESS)
+        ret = i2c_smbus_read_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4, rdata);
+        if (ret >= SUCCESS)
         {
-            DeviceCrc = (rdata[INDEX_3] << SHIFT_24) | (rdata[INDEX_2] << SHIFT_16)
-                                    | (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_0];
+            DeviceCrc = (rdata[INDEX_3] << SHIFT_24) |
+                        (rdata[INDEX_2] << SHIFT_16) |
+                        (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_0];
 
-            sd_journal_print(LOG_INFO, "CRC from the device = 0x%x\n ",DeviceCrc);
-            sd_journal_print(LOG_INFO, "CRC from the manifest file = 0x%x\n", Crc);
+            sd_journal_print(LOG_INFO, "CRC from the device = 0x%x\n ",
+                             DeviceCrc);
+            sd_journal_print(LOG_INFO, "CRC from the manifest file = 0x%x\n",
+                             Crc);
         }
         else
         {
@@ -47,15 +52,18 @@ bool vr_update_renesas_gen3::crcCheckSum()
         return false;
     }
 
-    if(DeviceCrc == Crc)
+    if (DeviceCrc == Crc)
     {
-       sd_journal_print(LOG_ERR, "Device CRC matches with file CRC. Skipping the update\n");
-       CrcMatched = true;
-       return false;
+        sd_journal_print(
+            LOG_ERR, "Device CRC matches with file CRC. Skipping the update\n");
+        CrcMatched = true;
+        return false;
     }
     else
     {
-        sd_journal_print(LOG_INFO, "CRC not matched with the previous image. Continuing the update\n");
+        sd_journal_print(
+            LOG_INFO,
+            "CRC not matched with the previous image. Continuing the update\n");
         CrcMatched = false;
         return true;
     }
@@ -63,92 +71,107 @@ bool vr_update_renesas_gen3::crcCheckSum()
 
 bool vr_update_renesas_gen3::isUpdatable()
 {
-    u_int8_t rdata[MAXIMUM_SIZE] = { 0 };
+    u_int8_t rdata[MAXIMUM_SIZE] = {0};
     int ret = FAILURE;
     bool rc = false;
 
     /*Disable packet capture.This step should be completed for
       parts with a configuration in RAM or NVM*/
     ret = i2c_smbus_write_word_data(fd, DMA_WRITE, DISABLE_PACKET);
-    if(ret == SUCCESS)
+    if (ret == SUCCESS)
     {
         ret = i2c_smbus_read_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4, rdata);
-        if(ret >= SUCCESS)
+        if (ret >= SUCCESS)
         {
             rdata[INDEX_0] = rdata[INDEX_0] & 0xDF;
 
-            ret = i2c_smbus_write_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4, rdata);
-            if(ret == SUCCESS)
+            ret = i2c_smbus_write_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4,
+                                                 rdata);
+            if (ret == SUCCESS)
             {
-                ret = i2c_smbus_write_word_data(fd, FINISH_CMD_CODE, FINISH_CAPTURE);
-                if(ret == SUCCESS)
+                ret = i2c_smbus_write_word_data(fd, FINISH_CMD_CODE,
+                                                FINISH_CAPTURE);
+                if (ret == SUCCESS)
                 {
-                    sd_journal_print(LOG_INFO, "Disable packet capture finished\n");
+                    sd_journal_print(LOG_INFO,
+                                     "Disable packet capture finished\n");
                 }
                 else
                 {
-                    sd_journal_print(LOG_ERR, "Finish disable packet capture: DMA write failed\n");
+                    sd_journal_print(
+                        LOG_ERR,
+                        "Finish disable packet capture: DMA write failed\n");
                     return false;
                 }
             }
             else
             {
-                sd_journal_print(LOG_ERR, "Finish disable packet capture: DMA write failed\n");
+                sd_journal_print(
+                    LOG_ERR,
+                    "Finish disable packet capture: DMA write failed\n");
                 return false;
             }
         }
         else
         {
-            sd_journal_print(LOG_ERR, "Disable packet capture: DMA read failed\n");
+            sd_journal_print(LOG_ERR,
+                             "Disable packet capture: DMA read failed\n");
             return false;
         }
     }
     else
     {
-        sd_journal_print(LOG_ERR, "Disbale packet capture:Setting the DMA address failed\n");
+        sd_journal_print(
+            LOG_ERR, "Disbale packet capture:Setting the DMA address failed\n");
         return false;
     }
 
     /*Determine number of NVM slots available*/
 
-    std::fill_n(rdata,MAXIMUM_SIZE,0);
+    std::fill_n(rdata, MAXIMUM_SIZE, 0);
     u_int8_t AvailableNvmSlots = 0;
 
-    ret = i2c_smbus_write_word_data(fd,DMA_WRITE, GEN3_NVM_SLOT_ADDR);
+    ret = i2c_smbus_write_word_data(fd, DMA_WRITE, GEN3_NVM_SLOT_ADDR);
 
-    if(ret == SUCCESS)
+    if (ret == SUCCESS)
     {
-        ret = i2c_smbus_read_i2c_block_data(fd,DMA_READ, BYTE_COUNT_4, rdata);
+        ret = i2c_smbus_read_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4, rdata);
 
-        if(ret >= SUCCESS)
+        if (ret >= SUCCESS)
         {
-            AvailableNvmSlots = (rdata[INDEX_3] << SHIFT_24) | (rdata[INDEX_2] << SHIFT_16)
-                                     | (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_0];
+            AvailableNvmSlots = (rdata[INDEX_3] << SHIFT_24) |
+                                (rdata[INDEX_2] << SHIFT_16) |
+                                (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_0];
 
-            sd_journal_print(LOG_INFO, "Number of available NVM slots = %d\n",AvailableNvmSlots);
+            sd_journal_print(LOG_INFO, "Number of available NVM slots = %d\n",
+                             AvailableNvmSlots);
 
-            if(AvailableNvmSlots <= MIN_NVM_SLOT)
+            if (AvailableNvmSlots <= MIN_NVM_SLOT)
             {
-                sd_journal_print(LOG_ERR, "Available NVM slots is less than 5.Hence aborting the update\n");
+                sd_journal_print(
+                    LOG_ERR,
+                    "Available NVM slots is less than 5.Hence aborting the update\n");
                 return false;
             }
         }
         else
         {
-            sd_journal_print(LOG_ERR, "Find Available NVM slots: DMA read failed\n");
+            sd_journal_print(LOG_ERR,
+                             "Find Available NVM slots: DMA read failed\n");
             return false;
         }
     }
     else
     {
-        sd_journal_print(LOG_ERR, "Find Available NVM slots: Setting DMA address failed\n");
+        sd_journal_print(
+            LOG_ERR, "Find Available NVM slots: Setting DMA address failed\n");
         return false;
     }
 
     /*Device ID validation*/
 
     /*Read Device Id from the device*/
-    std::fill_n(rdata,MAXIMUM_SIZE,0);
+    std::fill_n(rdata, MAXIMUM_SIZE, 0);
     u_int32_t FileDeviceId = 0;
     u_int32_t VrDeviceId = 0;
     std::string line;
@@ -157,16 +180,19 @@ bool vr_update_renesas_gen3::isUpdatable()
 
     ret = i2c_smbus_read_i2c_block_data(fd, DEV_ID_CMD, BYTE_COUNT_5, rdata);
 
-    if(ret >= SUCCESS)
+    if (ret >= SUCCESS)
     {
-        VrDeviceId = (rdata[INDEX_4] << SHIFT_24) | (rdata[INDEX_3] << SHIFT_16) |
-                    (rdata[INDEX_2] << SHIFT_8) | rdata[INDEX_1];
+        VrDeviceId = (rdata[INDEX_4] << SHIFT_24) |
+                     (rdata[INDEX_3] << SHIFT_16) |
+                     (rdata[INDEX_2] << SHIFT_8) | rdata[INDEX_1];
 
-        sd_journal_print(LOG_INFO, "Device ID from the VR = 0x%x\n",VrDeviceId );
+        sd_journal_print(LOG_INFO, "Device ID from the VR = 0x%x\n",
+                         VrDeviceId);
     }
     else
     {
-        sd_journal_print(LOG_ERR, "Failed to read device ID from the VR device\n");
+        sd_journal_print(LOG_ERR,
+                         "Failed to read device ID from the VR device\n");
         return false;
     }
 
@@ -175,14 +201,15 @@ bool vr_update_renesas_gen3::isUpdatable()
 
     if (cFile.is_open())
     {
-        if(getline(cFile, line))
+        if (getline(cFile, line))
         {
             std::string Id = line.substr(INDEX_8, INDEX_8);
             FileDeviceId = std::stoull(Id, nullptr, BASE_16);
         }
         else
         {
-            sd_journal_print(LOG_ERR, "Failed to read device id from config file\n");
+            sd_journal_print(LOG_ERR,
+                             "Failed to read device id from config file\n");
             rc = false;
             goto Clean;
         }
@@ -193,19 +220,21 @@ bool vr_update_renesas_gen3::isUpdatable()
         return false;
     }
 
-    sd_journal_print(LOG_INFO, "Device ID from config file = 0x%x\n" ,FileDeviceId);
+    sd_journal_print(LOG_INFO, "Device ID from config file = 0x%x\n",
+                     FileDeviceId);
 
-    if(VrDeviceId == FileDeviceId)
+    if (VrDeviceId == FileDeviceId)
     {
         sd_journal_print(LOG_DEBUG, "VR device id and file devie id matched\n");
         rc = true;
     }
     else
     {
-        sd_journal_print(LOG_ERR, "VR device id and file devie did not match.Update failed\n");
+        sd_journal_print(
+            LOG_ERR,
+            "VR device id and file devie did not match.Update failed\n");
         rc = false;
         goto Clean;
-
     }
 
 Clean:
@@ -228,58 +257,64 @@ bool vr_update_renesas_gen3::UpdateFirmware()
     }
 
     /*Parse Hex file and Write to HW*/
-    while(getline(cFile, line))
+    while (getline(cFile, line))
     {
-        std::string Header = line.substr(INDEX_0,INDEX_2);
-        if(Header.compare("00"))
+        std::string Header = line.substr(INDEX_0, INDEX_2);
+        if (Header.compare("00"))
             continue;
 
-        std::string CommandCode = line.substr(INDEX_6,INDEX_2);
+        std::string CommandCode = line.substr(INDEX_6, INDEX_2);
         u_int8_t Command = std::stoul(CommandCode, nullptr, BASE_16);
 
-        std::string ByteCount = line.substr(INDEX_2,INDEX_2);
+        std::string ByteCount = line.substr(INDEX_2, INDEX_2);
 
-        if((ByteCount.compare("05")) == STATUS_BIT_0)
+        if ((ByteCount.compare("05")) == STATUS_BIT_0)
         {
             u_int8_t ByteData[INDEX_2] = {0};
-            std::string WriteData = line.substr(INDEX_8,INDEX_2);
+            std::string WriteData = line.substr(INDEX_8, INDEX_2);
             ByteData[INDEX_0] = std::stoul(WriteData, nullptr, BASE_16);
 
-            WriteData = line.substr(INDEX_10,INDEX_2);
+            WriteData = line.substr(INDEX_10, INDEX_2);
             ByteData[INDEX_1] = std::stoul(WriteData, nullptr, BASE_16);
 
-            sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x\n",Command,ByteData[INDEX_0],ByteData[INDEX_1]);
+            sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x\n", Command,
+                             ByteData[INDEX_0], ByteData[INDEX_1]);
 
-            ret = i2c_smbus_write_i2c_block_data(fd, Command, BYTE_COUNT_2, ByteData);
+            ret = i2c_smbus_write_i2c_block_data(fd, Command, BYTE_COUNT_2,
+                                                 ByteData);
             if (ret < SUCCESS)
             {
-                sd_journal_print(LOG_ERR, "Writing word data to the device failed \n");
+                sd_journal_print(LOG_ERR,
+                                 "Writing word data to the device failed \n");
                 rc = false;
                 goto Clean;
             }
-
         }
-        else if((ByteCount.compare("07")) == STATUS_BIT_0)
+        else if ((ByteCount.compare("07")) == STATUS_BIT_0)
         {
             u_int8_t WordData[INDEX_4] = {0};
-            std::string WriteData = line.substr(INDEX_8,INDEX_2);
+            std::string WriteData = line.substr(INDEX_8, INDEX_2);
             WordData[INDEX_0] = std::stoul(WriteData, nullptr, BASE_16);
 
-            WriteData = line.substr(INDEX_10,INDEX_2);
+            WriteData = line.substr(INDEX_10, INDEX_2);
             WordData[INDEX_1] = std::stoul(WriteData, nullptr, BASE_16);
 
-            WriteData = line.substr(INDEX_12,INDEX_2);
+            WriteData = line.substr(INDEX_12, INDEX_2);
             WordData[INDEX_2] = std::stoul(WriteData, nullptr, BASE_16);
 
-            WriteData = line.substr(INDEX_14,INDEX_2);
+            WriteData = line.substr(INDEX_14, INDEX_2);
             WordData[INDEX_3] = std::stoul(WriteData, nullptr, BASE_16);
 
-            sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x 0x%x 0x%x\n",Command,WordData[INDEX_0],WordData[INDEX_1],WordData[INDEX_2],WordData[INDEX_3]);
+            sd_journal_print(LOG_DEBUG, "0x%x 0x%x 0x%x 0x%x 0x%x\n", Command,
+                             WordData[INDEX_0], WordData[INDEX_1],
+                             WordData[INDEX_2], WordData[INDEX_3]);
 
-            ret = i2c_smbus_write_i2c_block_data(fd, Command, BYTE_COUNT_4, WordData);
+            ret = i2c_smbus_write_i2c_block_data(fd, Command, BYTE_COUNT_4,
+                                                 WordData);
             if (ret < SUCCESS)
             {
-                sd_journal_print(LOG_ERR, "Writing block data to the device failed \n");
+                sd_journal_print(LOG_ERR,
+                                 "Writing block data to the device failed \n");
                 rc = false;
                 goto Clean;
             }
@@ -294,19 +329,21 @@ Clean:
 
 bool vr_update_renesas_gen3::ValidateFirmware()
 {
-    u_int8_t rdata[MAXIMUM_SIZE] = { 0 };
+    u_int8_t rdata[MAXIMUM_SIZE] = {0};
     int length, timeout = 0, ret = 0, status = 0;
 
     usleep(SLEEP_2);
 
-    //Poll PROGRAMMER_STATUS Register
+    // Poll PROGRAMMER_STATUS Register
     while (timeout < INDEX_10)
     {
         timeout++;
 
-        if (i2c_smbus_write_word_data(fd,DMA_WRITE, GEN3_PRGM_STATUS) == SUCCESS)
+        if (i2c_smbus_write_word_data(fd, DMA_WRITE, GEN3_PRGM_STATUS) ==
+            SUCCESS)
         {
-            ret = i2c_smbus_read_i2c_block_data(fd,DMA_READ, BYTE_COUNT_4, rdata);
+            ret = i2c_smbus_read_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4,
+                                                rdata);
             if (ret >= SUCCESS)
             {
                 if ((rdata[INDEX_0] & STATUS_BIT_1) == STATUS_BIT_1)
@@ -321,22 +358,27 @@ bool vr_update_renesas_gen3::ValidateFirmware()
             }
             else
             {
-                sd_journal_print(LOG_ERR, "Poll programmer status register:DMA read failed\n");
+                sd_journal_print(
+                    LOG_ERR,
+                    "Poll programmer status register:DMA read failed\n");
                 return false;
             }
         }
         else
         {
-            sd_journal_print(LOG_ERR, "Poll programmer status register:Setting DMA register failed\n");
+            sd_journal_print(
+                LOG_ERR,
+                "Poll programmer status register:Setting DMA register failed\n");
             return false;
         }
     }
 
-    //Programming Failure
+    // Programming Failure
     if (status == FAILURE)
     {
-        sd_journal_print(LOG_INFO, "Bit 0 of programmer status register is 0."
-             "Programming has failed.Decoding the bits\n");
+        sd_journal_print(LOG_INFO,
+                         "Bit 0 of programmer status register is 0."
+                         "Programming has failed.Decoding the bits\n");
 
         if (((rdata[INDEX_0] >> STATUS_BIT_1) & STATUS_BIT_1) == BIT_ENABLE)
         {
@@ -344,11 +386,14 @@ bool vr_update_renesas_gen3::ValidateFirmware()
         }
         if (((rdata[INDEX_0] >> STATUS_BIT_2) & STATUS_BIT_1) == BIT_ENABLE)
         {
-            sd_journal_print(LOG_ERR, "The HEX file contains more configurations than are available\n");
+            sd_journal_print(
+                LOG_ERR,
+                "The HEX file contains more configurations than are available\n");
         }
         if (((rdata[INDEX_0] >> STATUS_BIT_3) & STATUS_BIT_1) == BIT_ENABLE)
         {
-            sd_journal_print(LOG_ERR, "CRC mismatch exists within the configuration data\n");
+            sd_journal_print(
+                LOG_ERR, "CRC mismatch exists within the configuration data\n");
         }
         if (((rdata[INDEX_0] >> STATUS_BIT_4) & STATUS_BIT_1) == BIT_ENABLE)
         {
@@ -356,7 +401,8 @@ bool vr_update_renesas_gen3::ValidateFirmware()
         }
         if (((rdata[INDEX_0] >> STATUS_BIT_5) & STATUS_BIT_1) == BIT_ENABLE)
         {
-            sd_journal_print(LOG_ERR, "Programming has failed! OTP banks consumed\n");
+            sd_journal_print(LOG_ERR,
+                             "Programming has failed! OTP banks consumed\n");
         }
         return false;
     }
@@ -366,51 +412,59 @@ bool vr_update_renesas_gen3::ValidateFirmware()
 
     usleep(SLEEP_2);
 
-    if (i2c_smbus_write_word_data(fd,DMA_WRITE, GEN3_BANK_REG) == SUCCESS)
+    if (i2c_smbus_write_word_data(fd, DMA_WRITE, GEN3_BANK_REG) == SUCCESS)
     {
-        ret = i2c_smbus_read_i2c_block_data(fd,DMA_READ, BYTE_COUNT_4, rdata);
+        ret = i2c_smbus_read_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4, rdata);
         if (ret < SUCCESS)
         {
-            sd_journal_print(LOG_ERR, "Read bank status register: DMA read failed\n");
+            sd_journal_print(LOG_ERR,
+                             "Read bank status register: DMA read failed\n");
             return false;
         }
     }
     else
     {
-        sd_journal_print(LOG_ERR, "Read bank status register:Setting DMA address failed\n");
+        sd_journal_print(
+            LOG_ERR, "Read bank status register:Setting DMA address failed\n");
     }
 
     int BankNumber = 0;
 
-    for(int ByteCount = INDEX_0 ; ByteCount < INDEX_4 ; ByteCount++)
+    for (int ByteCount = INDEX_0; ByteCount < INDEX_4; ByteCount++)
     {
         int StatusData[INDEX_2];
         StatusData[INDEX_0] = rdata[ByteCount] & INT_15;
         StatusData[INDEX_1] = rdata[ByteCount] >> SHIFT_4;
 
-        for(int BankStatus = INDEX_0 ; BankStatus < INDEX_2 ; BankStatus++)
+        for (int BankStatus = INDEX_0; BankStatus < INDEX_2; BankStatus++)
         {
-            if(StatusData[BankStatus] == STATUS_BIT_8)
+            if (StatusData[BankStatus] == STATUS_BIT_8)
             {
-                sd_journal_print(LOG_ERR, "CRC mismatch OTP for bank = %d\n",BankNumber);
+                sd_journal_print(LOG_ERR, "CRC mismatch OTP for bank = %d\n",
+                                 BankNumber);
                 return false;
             }
-            else if(StatusData[BankStatus] == STATUS_BIT_4)
+            else if (StatusData[BankStatus] == STATUS_BIT_4)
             {
-                sd_journal_print(LOG_ERR, "CRC mismatch RAM for bank = %d\n", BankNumber);
+                sd_journal_print(LOG_ERR, "CRC mismatch RAM for bank = %d\n",
+                                 BankNumber);
                 return false;
             }
-            else if(StatusData[BankStatus] == STATUS_BIT_2)
+            else if (StatusData[BankStatus] == STATUS_BIT_2)
             {
-                sd_journal_print(LOG_INFO, "Reserved : Bank %d\n",BankNumber);;
+                sd_journal_print(LOG_INFO, "Reserved : Bank %d\n", BankNumber);
+                ;
             }
-            else if(StatusData[BankStatus] == STATUS_BIT_1)
+            else if (StatusData[BankStatus] == STATUS_BIT_1)
             {
-                sd_journal_print(LOG_INFO, "Bank Written (No Failures) : Bank %d\n",BankNumber);
+                sd_journal_print(LOG_INFO,
+                                 "Bank Written (No Failures) : Bank %d\n",
+                                 BankNumber);
             }
-            else if(StatusData[BankStatus] == STATUS_BIT_0)
+            else if (StatusData[BankStatus] == STATUS_BIT_0)
             {
-                sd_journal_print(LOG_INFO, " : Unaffected : Bank %d\n",BankNumber);
+                sd_journal_print(LOG_INFO, " : Unaffected : Bank %d\n",
+                                 BankNumber);
             }
             BankNumber++;
         }

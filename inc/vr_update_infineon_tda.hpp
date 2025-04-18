@@ -30,16 +30,16 @@
 #define R4_REV ("R4")
 #define R5_REV ("R5")
 
-class vr_update_infineon_tda: public vr_update
+class vr_update_infineon_tda : public vr_update
 {
-
-protected:
+  protected:
     int NextImgPtr;
 
-public:
-    vr_update_infineon_tda(std::string Processor,uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath,
-          std::string Revision,uint16_t PmbusAddress);
+  public:
+    vr_update_infineon_tda(std::string Processor, uint32_t Crc,
+                           std::string Model, uint16_t SlaveAddress,
+                           std::string ConfigFilePath, std::string Revision,
+                           uint16_t PmbusAddress);
 
     virtual bool crcCheckSum();
     virtual bool isUpdatable();

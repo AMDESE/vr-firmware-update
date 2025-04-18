@@ -1,24 +1,25 @@
 /*
-* vr_update_infineon_tda.cpp
-*
-* Created on: Nov 10, 2022
-* Author: Abinaya Dhandapani
-*/
+ * vr_update_infineon_tda.cpp
+ *
+ * Created on: Nov 10, 2022
+ * Author: Abinaya Dhandapani
+ */
 
 #include "vr_update.hpp"
 #include "vr_update_infineon_tda.hpp"
 
-vr_update_infineon_tda::vr_update_infineon_tda(std::string Processor,uint32_t Crc,
-          std::string Model,uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision,uint16_t PmbusAddress):
-          vr_update(Processor,Crc,Model,SlaveAddress,ConfigFilePath,Revision,PmbusAddress)
+vr_update_infineon_tda::vr_update_infineon_tda(
+    std::string Processor, uint32_t Crc, std::string Model,
+    uint16_t SlaveAddress, std::string ConfigFilePath, std::string Revision,
+    uint16_t PmbusAddress) :
+    vr_update(Processor, Crc, Model, SlaveAddress, ConfigFilePath, Revision,
+              PmbusAddress)
 {
-
     DriverPath = PMBUS_DRIVER_PATH;
 }
 
 bool vr_update_infineon_tda::crcCheckSum()
 {
-
     uint64_t UserImgPtr = 0;
     uint64_t mask = 1;
     uint16_t rdata = 0;
@@ -28,48 +29,51 @@ bool vr_update_infineon_tda::crcCheckSum()
     /* Change to page 0 by writing 0 to register 0xFF */
     rc = i2c_smbus_write_byte_data(fd, PAGE_NUM_REG, INDEX_0);
 
-    if (rc != SUCCESS) {
+    if (rc != SUCCESS)
+    {
         sd_journal_print(LOG_ERR, "Error: Changing page number to 0 failed\n");
         return false;
     }
 
     /* Read register 0x0B8 [15:0] to determine next USER image pointer*/
 
-    rdata = i2c_smbus_read_word_data(fd,USER_IMG_PTR3);
+    rdata = i2c_smbus_read_word_data(fd, USER_IMG_PTR3);
     if (rdata < 0)
     {
         sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
-        return false ;
+        return false;
     }
 
     UserImgPtr = UserImgPtr | rdata;
 
     sd_journal_print(LOG_INFO, "UserImgPtr: 0x%lx\n", UserImgPtr);
 
-    for(i = INDEX_0 ; i < 15 ; i++)
+    for (i = INDEX_0; i < 15; i++)
     {
-        if( (UserImgPtr & ( mask << i)) == SUCCESS)
+        if ((UserImgPtr & (mask << i)) == SUCCESS)
         {
             break;
         }
     }
     NextImgPtr = i;
 
-     sd_journal_print(LOG_INFO,"Nextimageptr: %d\n", NextImgPtr);
+    sd_journal_print(LOG_INFO, "Nextimageptr: %d\n", NextImgPtr);
     /*Check Previous Image CRC*/
 
     /*Send user section command*/
     int CrcImgPtr = NextImgPtr - INDEX_1;
     int UserSectionCmd = USER_READ_CMD;
 
-    UserSectionCmd = ( CrcImgPtr << INDEX_8) | UserSectionCmd;
-    sd_journal_print(LOG_INFO, "User command to write to 0xD6 = 0x%x\n ",UserSectionCmd);
+    UserSectionCmd = (CrcImgPtr << INDEX_8) | UserSectionCmd;
+    sd_journal_print(LOG_INFO, "User command to write to 0xD6 = 0x%x\n ",
+                     UserSectionCmd);
 
-    rc = i2c_smbus_write_word_data(fd, USER_PROG_CMD , UserSectionCmd);
+    rc = i2c_smbus_write_word_data(fd, USER_PROG_CMD, UserSectionCmd);
 
     if (rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error:User Program Command: Failed to write data\n");
+        sd_journal_print(LOG_ERR,
+                         "Error:User Program Command: Failed to write data\n");
         return false;
     }
 
@@ -82,7 +86,7 @@ bool vr_update_infineon_tda::crcCheckSum()
 
     uint8_t read_data = 0;
 
-    read_data = i2c_smbus_read_byte_data(fd,PROG_STATUS_REG);
+    read_data = i2c_smbus_read_byte_data(fd, PROG_STATUS_REG);
 
     if (read_data < SUCCESS)
     {
@@ -90,13 +94,13 @@ bool vr_update_infineon_tda::crcCheckSum()
         return false;
     }
 
-    if((read_data & USER_PROG_STATUS) == 0)
+    if ((read_data & USER_PROG_STATUS) == 0)
     {
         sd_journal_print(LOG_ERR, "User section programming failed\n");
         return false;
     }
 
-    rdata = i2c_smbus_read_word_data(fd,CRC_REG_1);
+    rdata = i2c_smbus_read_word_data(fd, CRC_REG_1);
 
     if (rdata < SUCCESS)
     {
@@ -106,28 +110,31 @@ bool vr_update_infineon_tda::crcCheckSum()
 
     uint32_t DeviceCrcData = 0;
 
-    DeviceCrcData = DeviceCrcData | ((uint32_t )rdata << BASE_16) ;
+    DeviceCrcData = DeviceCrcData | ((uint32_t)rdata << BASE_16);
 
-    rdata = i2c_smbus_read_word_data(fd,CRC_REG_2);
+    rdata = i2c_smbus_read_word_data(fd, CRC_REG_2);
     if (rdata < SUCCESS)
     {
-        sd_journal_print(LOG_ERR,"Error: Failed to read data\n");
+        sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
         return false;
     }
     DeviceCrcData = DeviceCrcData | rdata;
 
     sd_journal_print(LOG_INFO, "CRC from the device = 0x%x", DeviceCrcData);
-    sd_journal_print(LOG_INFO, "CRC from the manifest file = 0x%x ", Crc );
+    sd_journal_print(LOG_INFO, "CRC from the manifest file = 0x%x ", Crc);
 
-    if(DeviceCrcData == Crc)
+    if (DeviceCrcData == Crc)
     {
-        sd_journal_print(LOG_ERR, "CRC matches with previous image. Skipping the update\n");
+        sd_journal_print(
+            LOG_ERR, "CRC matches with previous image. Skipping the update\n");
         CrcMatched = true;
         return false;
     }
     else
     {
-        sd_journal_print(LOG_INFO, "CRC didnot match with previous image. Continuing the update\n");
+        sd_journal_print(
+            LOG_INFO,
+            "CRC didnot match with previous image. Continuing the update\n");
         CrcMatched = false;
     }
 
@@ -136,11 +143,10 @@ bool vr_update_infineon_tda::crcCheckSum()
 
 bool vr_update_infineon_tda::isUpdatable()
 {
-
     uint8_t rdata = 0;
     int rc = FAILURE;
 
-    if(NextImgPtr > 13 )
+    if (NextImgPtr > 13)
     {
         std::cout << "OTP for user section is not available\n";
         return false;
@@ -150,29 +156,34 @@ bool vr_update_infineon_tda::isUpdatable()
         /* Change to page 0 by writing 0 to register 0xFF */
         rc = i2c_smbus_write_byte_data(fd, PAGE_NUM_REG, INDEX_0);
 
-        if (rc != SUCCESS) {
-            sd_journal_print(LOG_ERR, "Error: Changing page number to 0 failed\n");
+        if (rc != SUCCESS)
+        {
+            sd_journal_print(LOG_ERR,
+                             "Error: Changing page number to 0 failed\n");
             return false;
         }
 
         /* Read register 0xFD to get the silicon version*/
 
-        rdata = i2c_smbus_read_byte_data(fd,SILICON_VER_REG);
+        rdata = i2c_smbus_read_byte_data(fd, SILICON_VER_REG);
         if (rdata < 0)
         {
             sd_journal_print(LOG_ERR, "Error: Failed to read data\n");
-            return false ;
+            return false;
         }
 
-        if((rdata == R5_REVISION) &&
+        if ((rdata == R5_REVISION) &&
             ((strcasecmp(Revision.c_str(), R5_REV)) == SUCCESS))
         {
             sd_journal_print(LOG_INFO, "R5 revision matched\n");
         }
         else
         {
-            sd_journal_print(LOG_INFO,"Silicon revision from VR device = 0x%x\n",rdata);
-            sd_journal_print(LOG_ERR,"VR device silicion revision is not compatible for the update. Aborting the process...\n");
+            sd_journal_print(LOG_INFO,
+                             "Silicon revision from VR device = 0x%x\n", rdata);
+            sd_journal_print(
+                LOG_ERR,
+                "VR device silicion revision is not compatible for the update. Aborting the process...\n");
             return false;
         }
         return true;
@@ -181,7 +192,6 @@ bool vr_update_infineon_tda::isUpdatable()
 
 bool vr_update_infineon_tda::UpdateFirmware()
 {
-
     uint16_t rdata = 0;
     int rc = FAILURE;
 
@@ -195,41 +205,45 @@ bool vr_update_infineon_tda::UpdateFirmware()
     }
 
     /*Write user section data*/
-   std::fstream newfile;
-   newfile.open(ConfigFilePath,std::ios::in);
+    std::fstream newfile;
+    newfile.open(ConfigFilePath, std::ios::in);
 
-   if (newfile.is_open())
-   {
-      std::string tp;
-      int data_section = 0;
-      int current_page_num = -1;
-      while(getline(newfile, tp))
-      {
+    if (newfile.is_open())
+    {
+        std::string tp;
+        int data_section = 0;
+        int current_page_num = -1;
+        while (getline(newfile, tp))
+        {
             /*Starting of user section */
-            if (tp.find("[Config Data]") != std::string::npos) {
+            if (tp.find("[Config Data]") != std::string::npos)
+            {
                 data_section = 1;
                 continue;
             }
 
             /*Starting of user section */
-            if (tp.find("[Configuration Data]") != std::string::npos) {
+            if (tp.find("[Configuration Data]") != std::string::npos)
+            {
                 data_section = 1;
                 continue;
             }
 
             /*Ending of user section */
-            if (tp.find("[End Config Data]") != std::string::npos) {
+            if (tp.find("[End Config Data]") != std::string::npos)
+            {
                 data_section = 1;
                 break;
             }
 
             /*Ending of user section */
-            if (tp.find("[End Configuration Data]") != std::string::npos) {
+            if (tp.find("[End Configuration Data]") != std::string::npos)
+            {
                 data_section = 1;
                 break;
             }
 
-            if(data_section == INDEX_1)
+            if (data_section == INDEX_1)
             {
                 int index = 0;
                 int page_number = 0;
@@ -238,60 +252,71 @@ bool vr_update_infineon_tda::UpdateFirmware()
                 std::string starting_index;
                 std::string userdata;
                 int index_num = 0;
-                int user_data  = 0;
+                int user_data = 0;
                 int index_range = 0;
 
                 std::stringstream iss(tp);
                 while (iss >> word)
                 {
                     /*First word which containes page num and index*/
-                    if(index == INDEX_0 )
+                    if (index == INDEX_0)
                     {
-                            index_range = std::stoi(word, nullptr, BASE_16);
-                            if(index_range < INDEX_40)
-                                break;
-                            else if(index_range >= INDEX_80 && index_range < INDEX_200)
-                                break;
-                            else if(index_range >= INDEX_300 && index_range < INDEX_380)
-                                break;
-                            else if(index_range >= INDEX_390)
-                                break;
+                        index_range = std::stoi(word, nullptr, BASE_16);
+                        if (index_range < INDEX_40)
+                            break;
+                        else if (index_range >= INDEX_80 &&
+                                 index_range < INDEX_200)
+                            break;
+                        else if (index_range >= INDEX_300 &&
+                                 index_range < INDEX_380)
+                            break;
+                        else if (index_range >= INDEX_390)
+                            break;
 
-                            std::cout << word << std::endl;
-                            page_num = "";
-                            page_num.push_back(word[INDEX_0]);
-                            page_num.push_back(word[INDEX_1]);
-                            page_number = std::stoi(page_num, nullptr, BASE_16);
+                        std::cout << word << std::endl;
+                        page_num = "";
+                        page_num.push_back(word[INDEX_0]);
+                        page_num.push_back(word[INDEX_1]);
+                        page_number = std::stoi(page_num, nullptr, BASE_16);
 
-
-                            if(current_page_num != page_number)
+                        if (current_page_num != page_number)
+                        {
+                            current_page_num = page_number;
+                            sd_journal_print(
+                                LOG_DEBUG,
+                                "Writing page number register 0x%x\n",
+                                page_number);
+                            rc = i2c_smbus_write_byte_data(fd, PAGE_NUM_REG,
+                                                           page_number);
+                            if (rc != SUCCESS)
                             {
-                                current_page_num = page_number;
-                                sd_journal_print(LOG_DEBUG, "Writing page number register 0x%x\n",page_number);
-                                rc = i2c_smbus_write_byte_data(fd, PAGE_NUM_REG, page_number);
-                                if (rc != SUCCESS) {
-                                    std::cout << "Error: Failed to write data" << std::endl;
-                                    return false;
-                                }
+                                std::cout << "Error: Failed to write data"
+                                          << std::endl;
+                                return false;
                             }
-                            starting_index="";
-                            starting_index.push_back(word[INDEX_2]);
-                            starting_index.push_back(word[INDEX_3]);
-                            index_num = std::stoi(starting_index, nullptr, BASE_16);
-                            index++;
-                            continue;
+                        }
+                        starting_index = "";
+                        starting_index.push_back(word[INDEX_2]);
+                        starting_index.push_back(word[INDEX_3]);
+                        index_num = std::stoi(starting_index, nullptr, BASE_16);
+                        index++;
+                        continue;
                     }
 
                     userdata = "";
                     userdata.push_back(word[INDEX_0]);
                     userdata.push_back(word[INDEX_1]);
                     user_data = std::stoi(userdata, nullptr, BASE_16);
-                    sd_journal_print(LOG_DEBUG, "Index Number = 0x%x User Data = 0x%x\n",index_num,user_data);
+                    sd_journal_print(LOG_DEBUG,
+                                     "Index Number = 0x%x User Data = 0x%x\n",
+                                     index_num, user_data);
 
                     rc = i2c_smbus_write_byte_data(fd, index_num, user_data);
 
-                    if (rc != SUCCESS) {
-                        sd_journal_print(LOG_ERR, "Error: Failed to write data\n");
+                    if (rc != SUCCESS)
+                    {
+                        sd_journal_print(LOG_ERR,
+                                         "Error: Failed to write data\n");
                         return false;
                     }
                     index_num++;
@@ -304,7 +329,8 @@ bool vr_update_infineon_tda::UpdateFirmware()
     /* Change to page 0 by writing 0 to register 0xFF */
     rc = i2c_smbus_write_byte_data(fd, PAGE_NUM_REG, INDEX_0);
 
-    if (rc != SUCCESS) {
+    if (rc != SUCCESS)
+    {
         sd_journal_print(LOG_ERR, "Error: Changing page number to 0 failed\n");
         return false;
     }
@@ -312,13 +338,14 @@ bool vr_update_infineon_tda::UpdateFirmware()
     /*Write programming command 0x3F42 to register 0x00D6*/
     int UserSectionCmd = 0x3F42;
 
-    UserSectionCmd = ( NextImgPtr << INDEX_8) | UserSectionCmd;
+    UserSectionCmd = (NextImgPtr << INDEX_8) | UserSectionCmd;
 
-    rc = i2c_smbus_write_word_data(fd, USER_PROG_CMD , UserSectionCmd);
+    rc = i2c_smbus_write_word_data(fd, USER_PROG_CMD, UserSectionCmd);
 
     if (rc != SUCCESS)
     {
-        sd_journal_print(LOG_ERR, "Error:User Program Command: Failed to write data\n");
+        sd_journal_print(LOG_ERR,
+                         "Error:User Program Command: Failed to write data\n");
         return false;
     }
 
@@ -336,7 +363,7 @@ bool vr_update_infineon_tda::ValidateFirmware()
 
     uint8_t read_data = 0;
 
-    read_data = i2c_smbus_read_byte_data(fd,PROG_STATUS_REG);
+    read_data = i2c_smbus_read_byte_data(fd, PROG_STATUS_REG);
 
     if (read_data < SUCCESS)
     {
@@ -344,7 +371,7 @@ bool vr_update_infineon_tda::ValidateFirmware()
         return false;
     }
 
-    if((read_data & USER_PROG_STATUS) == SUCCESS)
+    if ((read_data & USER_PROG_STATUS) == SUCCESS)
     {
         sd_journal_print(LOG_ERR, "User section programming failed\n");
         return false;

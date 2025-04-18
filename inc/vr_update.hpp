@@ -1,133 +1,131 @@
 /*
-* vr-update.hpp
-*
-* Created on: Nov 9, 2022
-* 	Author: alkulkar
-*/
-
+ * vr-update.hpp
+ *
+ * Created on: Nov 9, 2022
+ * 	Author: alkulkar
+ */
 
 #ifndef VR_UPDATE_H_
 #define VR_UPDATE_H_
 
-
-#include <iostream>
-#include <sstream>
+#include <dirent.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <string>
+
+#include <phosphor-logging/log.hpp>
+
+#include <algorithm>
+#include <array>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <cstring>
-#include <stdint.h>
-#include <algorithm>
-#include <dirent.h>
-#include <array>
-#include <vector>
-#include <algorithm>
 #include <iomanip>
-#include <filesystem>
-#include <phosphor-logging/log.hpp>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 extern "C"
 {
-#include <unistd.h>
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-#include <i2c/smbus.h>
-#include <sys/ioctl.h>
 #include <fcntl.h>
+#include <i2c/smbus.h>
+#include <linux/i2c-dev.h>
+#include <linux/i2c.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 }
 
-#define COMMAND_OUTPUT_LEN  (50)
-#define	MPS2861				("MPS2861")
-#define	MPS2862				("MPS2862")
-#define MPS2857             ("MPS2857")
-#define MPS2856             ("MPS2856")
-#define MP2869              ("MP2869")
-#define MP29608             ("MP29608")
-#define GEN2                  ("GEN2")
-#define GEN3                  ("GEN3")
-#define RAA229613             ("RAA229613")
-#define RAA229625             ("RAA229625")
-#define RAA229620             ("RAA229620")
-#define RAA229621             ("RAA229621")
-#define ISL68220              ("ISL68220")
-#define RAA229639             ("RAA229639")
-#define RAA229641             ("RAA229641")
-#define RAA22964              ("RAA22964")
-#define RENESAS               ("RENESAS")
-#define INFINEON_XDPE         ("XDPE")
-#define INFINEON_TDA          ("TDA")
-#define PATCH                 ("PATCH")
+#define COMMAND_OUTPUT_LEN (50)
+#define MPS2861 ("MPS2861")
+#define MPS2862 ("MPS2862")
+#define MPS2857 ("MPS2857")
+#define MPS2856 ("MPS2856")
+#define MP2869 ("MP2869")
+#define MP29608 ("MP29608")
+#define GEN2 ("GEN2")
+#define GEN3 ("GEN3")
+#define RAA229613 ("RAA229613")
+#define RAA229625 ("RAA229625")
+#define RAA229620 ("RAA229620")
+#define RAA229621 ("RAA229621")
+#define ISL68220 ("ISL68220")
+#define RAA229639 ("RAA229639")
+#define RAA229641 ("RAA229641")
+#define RAA22964 ("RAA22964")
+#define RENESAS ("RENESAS")
+#define INFINEON_XDPE ("XDPE")
+#define INFINEON_TDA ("TDA")
+#define PATCH ("PATCH")
 
-#define SOCKET_0              ("P0")
-#define SOCKET_1              ("P1")
+#define SOCKET_0 ("P0")
+#define SOCKET_1 ("P1")
 
-#define BYTE_COUNT_5		  (5)
-#define BYTE_COUNT_4		  (4)
-#define BYTE_COUNT_3		  (3)
-#define BYTE_COUNT_2          (2)
-#define SHIFT_24              (24)
-#define SHIFT_16              (16)
-#define SHIFT_8               (8)
-#define SHIFT_6               (6)
-#define SHIFT_4               (4)
+#define BYTE_COUNT_5 (5)
+#define BYTE_COUNT_4 (4)
+#define BYTE_COUNT_3 (3)
+#define BYTE_COUNT_2 (2)
+#define SHIFT_24 (24)
+#define SHIFT_16 (16)
+#define SHIFT_8 (8)
+#define SHIFT_6 (6)
+#define SHIFT_4 (4)
 
-#define SUCCESS               (0)
-#define FAILURE               (-1)
+#define SUCCESS (0)
+#define FAILURE (-1)
 
-#define INDEX_0               (0)
-#define INDEX_1               (1)
-#define INDEX_2               (2)
-#define INDEX_3               (3)
-#define INDEX_4               (4)
-#define INDEX_5               (5)
-#define INDEX_6               (6)
-#define INDEX_7               (7)
-#define INDEX_8               (8)
-#define INDEX_10              (10)
-#define INDEX_12              (12)
-#define INDEX_14              (14)
-#define INDEX_20              (20)
-#define INDEX_32              (32)
-#define INDEX_48              (48)
+#define INDEX_0 (0)
+#define INDEX_1 (1)
+#define INDEX_2 (2)
+#define INDEX_3 (3)
+#define INDEX_4 (4)
+#define INDEX_5 (5)
+#define INDEX_6 (6)
+#define INDEX_7 (7)
+#define INDEX_8 (8)
+#define INDEX_10 (10)
+#define INDEX_12 (12)
+#define INDEX_14 (14)
+#define INDEX_20 (20)
+#define INDEX_32 (32)
+#define INDEX_48 (48)
 
-#define STATUS_BIT_0          (0)
-#define STATUS_BIT_1          (1)
-#define STATUS_BIT_2          (2)
-#define STATUS_BIT_3          (3)
-#define STATUS_BIT_4          (4)
-#define STATUS_BIT_5          (5)
-#define STATUS_BIT_6          (6)
-#define STATUS_BIT_7          (7)
-#define STATUS_BIT_8          (8)
-#define INT_255               (0xFF)
-#define INT_15                (0x0F)
-#define SLAVE_13              (0x13)
-#define SLAVE_14              (0x14)
-#define SLAVE_15              (0x15)
+#define STATUS_BIT_0 (0)
+#define STATUS_BIT_1 (1)
+#define STATUS_BIT_2 (2)
+#define STATUS_BIT_3 (3)
+#define STATUS_BIT_4 (4)
+#define STATUS_BIT_5 (5)
+#define STATUS_BIT_6 (6)
+#define STATUS_BIT_7 (7)
+#define STATUS_BIT_8 (8)
+#define INT_255 (0xFF)
+#define INT_15 (0x0F)
+#define SLAVE_13 (0x13)
+#define SLAVE_14 (0x14)
+#define SLAVE_15 (0x15)
 
-#define BASE_16               (16)
-#define FILE_PATH_SIZE        (256)
-#define MIN_WAIT_TIME         (10000)
-#define LENGTH_0              (0)
+#define BASE_16 (16)
+#define FILE_PATH_SIZE (256)
+#define MIN_WAIT_TIME (10000)
+#define LENGTH_0 (0)
 
-#define ISL_DRIVER_PATH       ("/sys/bus/i2c/drivers/isl68137/")
-#define MPS_DRIVER_PATH       ("/sys/bus/i2c/drivers/mp2975/")
-#define MPS2856_DRIVER_PATH   ("/sys/bus/i2c/drivers/mp2856/")
-#define MPS2857_DRIVER_PATH   ("/sys/bus/i2c/drivers/mp2857/")
-#define XDPE_DRIVER_PATH      ("/sys/bus/i2c/drivers/xdpe12284/")
-#define PMBUS_DRIVER_PATH     ("/sys/bus/i2c/drivers/pmbus/")
-#define SLEEP_1               (1000000)
-#define SLEEP_2               (2000000)
-#define SLEEP_1000            (1000)
-#define INDEX_40              (0x40)
-#define INDEX_70              (0x70)
-#define INDEX_200             (0x200)
-#define INDEX_2FF             (0x2FF)
+#define ISL_DRIVER_PATH ("/sys/bus/i2c/drivers/isl68137/")
+#define MPS_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2975/")
+#define MPS2856_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2856/")
+#define MPS2857_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2857/")
+#define XDPE_DRIVER_PATH ("/sys/bus/i2c/drivers/xdpe12284/")
+#define PMBUS_DRIVER_PATH ("/sys/bus/i2c/drivers/pmbus/")
+#define SLEEP_1 (1000000)
+#define SLEEP_2 (2000000)
+#define SLEEP_1000 (1000)
+#define INDEX_40 (0x40)
+#define INDEX_70 (0x70)
+#define INDEX_200 (0x200)
+#define INDEX_2FF (0x2FF)
 
-class vr_update {
-
-protected:
+class vr_update
+{
+  protected:
     uint16_t SlaveAddress;
     uint16_t PmbusAddress;
     uint16_t BusNumber;
@@ -140,13 +138,15 @@ protected:
     int fd;
     char updateFilePath[FILE_PATH_SIZE];
 
-public:
- vr_update(std::string Processor,uint32_t Crc,std::string Model,
-          uint16_t SlaveAddress,std::string ConfigFilePath,std::string Revision,uint16_t PmbusAddress);
+  public:
+    vr_update(std::string Processor, uint32_t Crc, std::string Model,
+              uint16_t SlaveAddress, std::string ConfigFilePath,
+              std::string Revision, uint16_t PmbusAddress);
 
- static vr_update* CreateVRFrameworkObject(std::string Model,
-              uint16_t SlaveAddress, uint32_t Crc, std::string Processor,
-              std::string configFilePath,std::string UpdateType,std::string Revision,uint16_t PmbusAddress);
+    static vr_update* CreateVRFrameworkObject(
+        std::string Model, uint16_t SlaveAddress, uint32_t Crc,
+        std::string Processor, std::string configFilePath,
+        std::string UpdateType, std::string Revision, uint16_t PmbusAddress);
 
     virtual bool isUpdatable() = 0;
     virtual bool findBusNumber();
@@ -159,4 +159,3 @@ public:
 };
 
 #endif
-
