@@ -23,7 +23,7 @@ vr_update_renesas_gen3p5_patch::vr_update_renesas_gen3p5_patch(
               PmbusAddress),
     configFilePathArr(configFilePathArr)
 {
-    DriverPath = ISL_DRIVER_PATH;
+    DriverPath = RAA_DRIVER_PATH;
 }
 
 bool vr_update_renesas_gen3p5_patch::crcCheckSum()

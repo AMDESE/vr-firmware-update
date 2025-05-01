@@ -15,7 +15,7 @@ vr_update_renesas_gen3::vr_update_renesas_gen3(
     vr_update(Processor, Crc, Model, SlaveAddress, ConfigFilePath, Revision,
               PmbusAddress)
 {
-    DriverPath = ISL_DRIVER_PATH;
+    DriverPath = RAA_DRIVER_PATH;
 }
 
 bool vr_update_renesas_gen3::crcCheckSum()
