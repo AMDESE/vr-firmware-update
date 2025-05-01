@@ -61,6 +61,7 @@ vr_update* vr_update::CreateVRFrameworkObject(
         {
             sd_journal_print(LOG_INFO,
                              "Renesas Gen3.5 patch update triggered\n");
+
             p = new vr_update_renesas_gen3p5_patch(
                 Processor, Crc, Model, SlaveAddress, configFilePath, Revision,
                 PmbusAddress,configFilePathArr);

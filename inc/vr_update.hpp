@@ -126,6 +126,8 @@ extern "C"
 #define INDEX_200 (0x200)
 #define INDEX_2FF (0x2FF)
 
+#define PATCH_VERSION_FILE ("/var/lib/vr-config/renesas-patch.csv")
+
 class vr_update
 {
   protected:
