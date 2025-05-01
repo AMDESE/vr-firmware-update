@@ -112,6 +112,7 @@ extern "C"
 #define LENGTH_0 (0)
 
 #define ISL_DRIVER_PATH ("/sys/bus/i2c/drivers/isl68137/")
+#define RAA_DRIVER_PATH ("/sys/bus/i2c/drivers/raa229126/")
 #define MPS_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2975/")
 #define MPS2856_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2856/")
 #define MPS2857_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2857/")
