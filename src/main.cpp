@@ -504,6 +504,18 @@ int main(int argc, char* argv[])
             }
         }
 
+        if (std::filesystem::exists(PATCH_VERSION_FILE))
+        {
+            std::filesystem::remove(PATCH_VERSION_FILE);
+        }
+
+        std::ofstream patchFile;
+        patchFile.open(PATCH_VERSION_FILE, std::ios::app);
+        patchFile
+            << "#SlaveAddress,BusNUmber,VersionBeforeUpdate,VersionAfterUpdate"
+            << std::endl;
+        patchFile.close();
+
         if (getBundleVersionInterface(bus) == false)
         {
             if (std::filesystem::exists(VR_PLATFORM_FILE))
