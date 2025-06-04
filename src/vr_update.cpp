@@ -17,6 +17,7 @@
 #include "vr_update_renesas_gen3p5_patch.hpp"
 #include "vr_update_renesas_patch.hpp"
 #include "vr_update_xdpe_patch.hpp"
+#include "vr_update_fan2510xx.hpp"
 
 #define MODEL ("Model")
 #define SLAVE_ADDRESS ("SlaveAddress")
@@ -124,6 +125,11 @@ vr_update* vr_update::CreateVRFrameworkObject(
     {
         p = new vr_update_mp2869(Processor, Crc, Model, SlaveAddress,
                                  configFilePath, Revision, PmbusAddress);
+    }
+    else if ((strcasecmp(Model.c_str(), FAN251015) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), FAN251030) == SUCCESS))
+    {
+        p = new vr_update_fan2510xx(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
     }
     else
     {

@@ -14,6 +14,41 @@
          "SlaveAddress":"0x63",
          "Processor":"P0",
          "VrName":"PVDDIO_P0_CONTROLLER"
+      },
+      {
+         "SlaveAddress":"0x8",
+         "Processor":"P0",
+         "VrName":"PVDD33_S5_P0_3300"
+      },
+      {
+         "SlaveAddress":"0x12",
+         "Processor":"P0",
+         "VrName":"PVDD18_S5_P0_FAN251030"
+      },
+      {
+         "SlaveAddress":"0x8",
+         "Processor":"None",
+         "VrName":"P2V5_AUX_2500"
+      },
+      {
+         "SlaveAddress":"0x9",
+         "Processor":"None",
+         "VrName":"P1V8_AUX_1800"
+      },
+      {
+         "SlaveAddress":"0xA",
+         "Processor":"None",
+         "VrName":"P1V0_AUX_1000"
+      },
+      {
+         "SlaveAddress":"0x14",
+         "Processor":"None",
+         "VrName":"P5V_AUX"
+      },
+      {
+         "SlaveAddress":"0x15",
+         "Processor":"None",
+         "VrName":"P3V3_AUX"
       }
    ]
 }

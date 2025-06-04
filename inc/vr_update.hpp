@@ -58,6 +58,8 @@ extern "C"
 #define INFINEON_XDPE ("XDPE")
 #define INFINEON_TDA ("TDA")
 #define PATCH ("PATCH")
+#define FAN251015 ("FAN251015")
+#define FAN251030 ("FAN251030")
 
 #define SOCKET_0 ("P0")
 #define SOCKET_1 ("P1")
@@ -111,6 +113,7 @@ extern "C"
 #define MIN_WAIT_TIME (10000)
 #define LENGTH_0 (0)
 
+#define FAN251030_DRIVER_PATH ("/sys/bus/i2c/drivers/fan251030/")
 #define ISL_DRIVER_PATH ("/sys/bus/i2c/drivers/isl68137/")
 #define RAA_DRIVER_PATH ("/sys/bus/i2c/drivers/raa229126/")
 #define MPS_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2975/")
