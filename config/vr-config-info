@@ -59,7 +59,7 @@ install_vr_platform_config()
        "80" | "81" | "86") #Congo board_ids
           cp /usr/sbin/congo-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "82" | "83" | "87") #Morocco board_ids
+       "82" | "83" | "87" | "8a") #Morocco board_ids
           cp /usr/sbin/morocco-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
        "84") #kenya board_ids

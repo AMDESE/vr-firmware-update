@@ -101,6 +101,7 @@ constexpr auto bundleVersionInterface =
 #define MOROCCO 130   // 0x82
 #define MOROCCO_1 131 // 0x83
 #define MOROCCO_2 135 // 0x87
+#define MALAWI 138    // 0x8A
 
 #define KENYA 132     // 0x84
 
@@ -421,7 +422,7 @@ bool PlatformIDValidation(std::string BoardName)
             PlatformName = "Congo";
         }
         else if ((board_id == MOROCCO) || (board_id == MOROCCO_1) ||
-                 (board_id == MOROCCO_2))
+                 (board_id == MOROCCO_2) || (board_id == MALAWI))
         {
             PlatformName = "Morocco";
         }
