@@ -93,7 +93,10 @@ bool vr_update_renesas_gen3p5_patch::isUpdatable()
                              "Device firmware version before update = 0x%x\n",
                              DeviceFw);
 
-            patchFile << BusNumber << ",0x" << std::hex << SlaveAddress << ",0x" << std::hex << DeviceFw;
+            patchFile << BusNumber << ",0x" << std::hex << SlaveAddress << ",0x"
+                      << std::hex << DeviceFw;
+
+            devVersion = DeviceFw;
 
             if ((DeviceFw == PATCH_FW_1) || (DeviceFw == PATCH_FW_2))
             {
@@ -502,6 +505,8 @@ bool vr_update_renesas_gen3p5_patch::ValidateFirmware()
             patchFile.open(PATCH_VERSION_FILE, std::ios::app);
             patchFile << ",0x" << std::hex << DeviceFw << std::endl;
             patchFile.close();
+
+            devVersion = DeviceFw;
         }
     }
     return true;

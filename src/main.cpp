@@ -128,9 +128,10 @@ struct bundleInterfaceStruct
 bundleInterfaceStruct bundleInterfaceObj;
 
 int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
-             std::string Processor, std::string configFilePath,
-             std::string UpdateType, bool* CrcMatched, std::string Revision,
-             uint16_t PmbusAddress, std::vector<std::string>& configFilePathArr)
+             uint32_t* Version, std::string Processor,
+             std::string configFilePath, std::string UpdateType,
+             bool* CrcMatched, std::string Revision, uint16_t PmbusAddress,
+             std::vector<std::string>& configFilePathArr)
 {
     int ret = FAILURE;
 
@@ -169,6 +170,8 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
         }
 
         rc = vr_update_obj->isUpdatable();
+        *Version = vr_update_obj->devVersion;
+
         if (rc != true)
         {
             ret = FAILURE;
@@ -176,6 +179,7 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
         }
 
         rc = vr_update_obj->UpdateFirmware();
+
         if (rc != true)
         {
             ret = FAILURE;
@@ -183,6 +187,8 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
         }
 
         rc = vr_update_obj->ValidateFirmware();
+        *Version = vr_update_obj->devVersion;
+
         if (rc != true)
         {
             ret = FAILURE;
@@ -466,6 +472,7 @@ int main(int argc, char* argv[])
     uint16_t PmbusAddress = 0;
     std::string BoardName;
     uint32_t Crc;
+    uint32_t deviceVersion = 0;
     std::string version;
     std::string UpdateType;
     std::string Revision;
@@ -714,9 +721,10 @@ int main(int argc, char* argv[])
                                  "Updating VR for the Slave Address = 0x%x",
                                  SlaveAddress);
 
-                ret = vrUpdate(Model, SlaveAddress, Crc, Processor,
-                               configFilePath, UpdateType, &CrcMatched,
-                               Revision, PmbusAddress, configFilePathArr);
+                ret = vrUpdate(Model, SlaveAddress, Crc, &deviceVersion,
+                               Processor, configFilePath, UpdateType,
+                               &CrcMatched, Revision, PmbusAddress,
+                               configFilePathArr);
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
@@ -726,7 +734,17 @@ int main(int argc, char* argv[])
                         if (strcasecmp(bundleInterfaceObj.Processor[i].c_str(),
                                        Processor.c_str()) == SUCCESS)
                         {
-                            bundleInterfaceObj.Versions[i] = version;
+                            if (deviceVersion != 0)
+                            {
+                                std::string hexVersion =
+                                    std::format("{:08X}", deviceVersion);
+                                bundleInterfaceObj.Versions[i] =
+                                    "0x" + hexVersion;
+                            }
+                            else
+                            {
+                                bundleInterfaceObj.Versions[i] = version;
+                            }
                             if (ret == SUCCESS)
                             {
                                 bundleInterfaceObj.Checksum[i] = CrcConfig;
