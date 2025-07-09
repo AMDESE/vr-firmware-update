@@ -165,6 +165,7 @@ class vr_update
     virtual bool crcCheckSum() = 0;
     virtual bool ValidateFirmware() = 0;
     bool CrcMatched;
+    uint32_t devVersion;
 };
 
 #endif
