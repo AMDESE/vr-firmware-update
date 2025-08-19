@@ -21,7 +21,8 @@ set(SRC_FILES src/main.cpp
               src/vr_update_mps.cpp
               src/vr_update_mps285x.cpp
               src/vr_update_mp2869.cpp
-              src/vr_update_fan2510xx.cpp)
+              src/vr_update_fan2510xx.cpp
+              src/vr_update_ism6636x.cpp )
 
 # import sdbusplus
 find_package(PkgConfig REQUIRED)
