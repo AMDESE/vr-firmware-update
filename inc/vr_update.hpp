@@ -42,6 +42,9 @@ extern "C"
 #define MPS2856 ("MPS2856")
 #define MP2869 ("MP2869")
 #define MP29608 ("MP29608")
+#define ISM6636A ("ISM6636A")
+#define ISM6636B ("ISM6636B")
+#define ISM6636C ("ISM6636C")
 #define GEN2 ("GEN2")
 #define GEN3 ("GEN3")
 #define RAA229613 ("RAA229613")
@@ -114,6 +117,7 @@ extern "C"
 #define LENGTH_0 (0)
 
 #define FAN251030_DRIVER_PATH ("/sys/bus/i2c/drivers/fan251030/")
+#define ISM6636X_DRIVER_PATH ("/sys/bus/i2c/drivers/ism6636x/")
 #define ISL_DRIVER_PATH ("/sys/bus/i2c/drivers/isl68137/")
 #define RAA_DRIVER_PATH ("/sys/bus/i2c/drivers/raa229126/")
 #define MPS_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2975/")

@@ -131,6 +131,13 @@ vr_update* vr_update::CreateVRFrameworkObject(
     {
         p = new vr_update_fan2510xx(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
     }
+    else if ((strcasecmp(Model.c_str(), ISM6636A) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), ISM6636B) == SUCCESS) ||
+             (strcasecmp(Model.c_str(), ISM6636C) == SUCCESS))
+    {
+        p = new vr_update_ism6636x(Processor, Crc, Model, SlaveAddress,
+                                   configFilePath, Revision, PmbusAddress);
+    }
     else
     {
         sd_journal_print(LOG_ERR, "Invalid Framework\n");
