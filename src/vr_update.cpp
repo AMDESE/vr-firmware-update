@@ -18,6 +18,7 @@
 #include "vr_update_renesas_patch.hpp"
 #include "vr_update_xdpe_patch.hpp"
 #include "vr_update_fan2510xx.hpp"
+#include "vr_update_ism6636x.hpp"
 
 #define MODEL ("Model")
 #define SLAVE_ADDRESS ("SlaveAddress")
