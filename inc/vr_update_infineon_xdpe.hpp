@@ -9,10 +9,12 @@
 #define GETCRCWAITTIME (20000)
 #define AVAILBYTEWAITTIME (1000)
 #define INVALBYTEWAITTIME (4000)
+#define SOAKTIME(100000)
 #define GETFWADDRWAITTIME (500)
 #define MINARGS (4)
 #define INT_255 (0xFF)
 #define TRIM_HEADER_CODE "00000002"
+#define INVALIDATE_ALL_OTP 0xfe
 
 /* Applicable Digital Controllers */
 #define PART1 (0x95)
