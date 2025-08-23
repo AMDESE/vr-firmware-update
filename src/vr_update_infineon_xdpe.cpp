@@ -340,6 +340,8 @@ int invalidateOtp(uint8_t xv, uint8_t hc, int fd)
 {
     uint8_t wdata[MAXBUFFERSIZE];
     int rc = FAILURE;
+
+    sd_journal_print(LOG_INFO, "XV Code = %d hc code = %d \n", xv, hc);
     wdata[INDEX_0] = hc;
     wdata[INDEX_1] = xv;
     wdata[INDEX_2] = 0x00;
@@ -361,13 +363,15 @@ int invalidateOtp(uint8_t xv, uint8_t hc, int fd)
         return FAILURE;
     }
 
+    usleep(INVALBYTEWAITTIME);
+
     sd_journal_print(LOG_DEBUG, "Invalidate OTP Byte Write with cmd 0xfe\n");
     sd_journal_print(LOG_DEBUG, "0x%x\n", INVAL_BYTE);
 
     rc = i2c_smbus_write_byte_data(fd, BYTE_PREFIX, INVAL_BYTE);
 
-    // sleep for 4ms
-    usleep(INVALBYTEWAITTIME);
+    // sleep for 100ms
+    usleep(SOAKTIME);
 
     if (rc != SUCCESS)
     {
@@ -536,6 +540,25 @@ bool vr_update_infineon_xdpe::UpdateFirmware()
 
     std::vector<std::vector<std::string>> sections =
         parseCfgFile(ConfigFilePath);
+    int rc = FAILURE;
+    uint8_t rdata[MAXBUFFERSIZE] = {0};
+
+    rc = i2c_smbus_read_block_data(fd, DEVICE_ID_CMD, rdata);
+    if (rc > LENGTH_0)
+    {
+        sd_journal_print(LOG_INFO, "Product ID = 0x%x Revision = %d \n", rdata[INDEX_1], rdata[INDEX_0]);
+        if (rdata[INDEX_1] == PART7)
+	{
+	    exit_status = invalidateOtp(INVALIDATE_ALL_OTP, INVALIDATE_ALL_OTP, fd);
+	    if (exit_status != SUCCESS)
+            {
+                sd_journal_print(
+                    LOG_ERR,
+                    "Invalidate OTP Data has failed. Skipping other steps\n");
+                return false;
+            }
+        }
+    }
 
     // Trim header programming needs to be ignored according to Infineon FAE
     std::string trim_header = TRIM_HEADER_CODE;
@@ -548,17 +571,21 @@ bool vr_update_infineon_xdpe::UpdateFirmware()
             continue;
         }
 
-        std::vector<uint8_t> xvhc = formatDword(sections[i][INDEX_0]);
+	if(rdata[INDEX_1] == PART1 || rdata[INDEX_1] == PART2 ||
+            rdata[INDEX_1] == PART3 || rdata[INDEX_1] == PART4 ||
+            rdata[INDEX_1] == PART5 || rdata[INDEX_1] == PART6)
+	{
+            std::vector<uint8_t> xvhc = formatDword(sections[i][INDEX_0]);
 
-        exit_status = invalidateOtp(xvhc[INDEX_1], xvhc[INDEX_0], fd);
-        if (exit_status != SUCCESS)
-        {
-            sd_journal_print(
-                LOG_ERR,
-                "Invalidate OTP Data has failed. Skipping other steps\n");
-            return false;
-        }
-
+            exit_status = invalidateOtp(xvhc[INDEX_1], xvhc[INDEX_0], fd);
+            if (exit_status != SUCCESS)
+            {
+                sd_journal_print(
+                    LOG_ERR,
+                    "Invalidate OTP Data has failed. Skipping other steps\n");
+                return false;
+            }
+	}
         exit_status = writeDataToScratchpad(sections[i], fd);
         if (exit_status != SUCCESS)
         {
