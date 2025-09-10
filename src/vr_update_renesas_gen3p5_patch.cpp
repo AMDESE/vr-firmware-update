@@ -28,7 +28,41 @@ vr_update_renesas_gen3p5_patch::vr_update_renesas_gen3p5_patch(
 
 bool vr_update_renesas_gen3p5_patch::crcCheckSum()
 {
+    u_int8_t rdata[MAXIMUM_SIZE] = {0};
+    int ret = 0;
+    u_int32_t DeviceFw = 0;
+
+    /*Read Device firmware version*/
     CrcMatched = false;
+    ret = i2c_smbus_write_word_data(fd, DMA_WRITE, DEVICE_FW_VERSION);
+    if (ret == SUCCESS)
+    {
+        ret = i2c_smbus_read_i2c_block_data(fd, DMA_READ, BYTE_COUNT_4, rdata);
+
+        if (ret >= SUCCESS)
+        {
+            DeviceFw = (rdata[INDEX_3] << SHIFT_24) |
+                       (rdata[INDEX_2] << SHIFT_16) |
+                       (rdata[INDEX_1] << SHIFT_8) | rdata[INDEX_0];
+
+            if ((DeviceFw == UPDATE_VER_1) || (DeviceFw == UPDATE_VER_2) ||
+                (DeviceFw == UPDATE_VER_3) || (DeviceFw == UPDATE_VER_4))
+            {
+                sd_journal_print(
+                    LOG_ERR,
+                    "The base firmware version is already upto date. Skipping the update\n");
+
+                CrcMatched = true;
+                return false;
+            }
+        }
+    }
+    else
+    {
+        sd_journal_print(LOG_ERR, "Write to DMA Address Register failed\n");
+        return false;
+    }
+
     return true;
 }
 
