@@ -10,7 +10,8 @@
 #define VENDOR_ID (0x4D5053)
 #define PRODUCT_ID (0x9608)
 #define PRODUCT_ID_1 (0x2869)
-
+#define PRODUCT_ID_2 (0x869A)
+#define PRODUCT_ID_3 (0x608A)
 #define PAGE_0 (0)
 #define PAGE_1 (1)
 #define PAGE_2 (2)

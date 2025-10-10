@@ -113,6 +113,27 @@ constexpr auto bundleVersionInterface =
 #define ZIMBABWE 140    // 0x8C
 #define ZANZIBAR 141    // 0x8D
 
+/*SP8 Platform IDs */
+#define EAGLE 159      // 0x9F
+#define EAGLE_1 160    // 0xA0
+#define EAGLE_2 161    // 0xA1
+#define HORNBILL 165   // 0xA5
+#define HORNBILL_1 166 // 0xA6
+#define HORNBILL_2 167 // 0xA7
+#define HORNBILL_3 168 // 0xA8
+#define HORNBILL_4 169 // 0xA9
+#define HORNBILL_5 170 // 0xAA
+#define HORNBILL_6 171 // 0xAB
+#define HORNBILL_7 172 // 0xAC
+#define HORNBILL_8 173 // 0xAD
+
+/*SP8 Venice SLT boards*/
+#define ROBIN 174     // 0xAE
+#define SANDPIPER 175 // 0xAF
+#define DUCK 162      // 0xA2
+#define DUCK_1 163    // 0xA3
+#define DUCK_2 164    // 0xA4
+
 struct bundleInterfaceStruct
 {
     std::vector<std::string> FirmwareID;
@@ -439,6 +460,21 @@ bool PlatformIDValidation(std::string BoardName)
         else if (board_id == NIGERIA)
         {
             PlatformName = "Nigeria";
+        }
+        else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
+                 (board_id == EAGLE_2) || (board_id == ROBIN) ||
+                 (board_id == SANDPIPER))
+        {
+            PlatformName = "Eagle";
+        }
+        else if ((board_id == HORNBILL) || (board_id == HORNBILL_1) ||
+                 (board_id == HORNBILL_2) || (board_id == HORNBILL_3) ||
+                 (board_id == HORNBILL_4) || (board_id == HORNBILL_5) ||
+                 (board_id == HORNBILL_6) || (board_id == HORNBILL_7) ||
+                 (board_id == HORNBILL_8) || (board_id == DUCK) ||
+                 (board_id == DUCK_1) || (board_id == DUCK_2))
+        {
+            PlatformName = "Hornbill";
         }
 
         if ((strcasecmp(BoardName.c_str(), PlatformName.c_str())) != SUCCESS)
