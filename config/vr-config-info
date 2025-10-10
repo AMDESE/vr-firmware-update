@@ -67,6 +67,12 @@ install_vr_platform_config()
        ;;
        "85") #kenya board_ids
           cp /usr/sbin/nigeria-vr.json "$vrConfigFolder/platform-vr.json"
+       ;;
+       "9F" | "A0" | "A1") #Eagle Board ID
+          cp /usr/sbin/eagle-vr.json "$vrConfigFolder/platform-vr.json"
+       ;;
+       "A5" | "A6" | "A7" | "A8" | "A9" | "AA" | "AB" | "AC" | "AD") #hornbill board_ids
+          cp /usr/sbin/hornbill-vr.json "$vrConfigFolder/platform-vr.json"
        esac
 }
 
