@@ -134,6 +134,15 @@ constexpr auto bundleVersionInterface =
 #define DUCK_1 163    // 0xA3
 #define DUCK_2 164    // 0xA4
 
+#define FALCON 177    // 0xB1
+#define FALCON_1 178  // 0xB2
+#define FALCON_2 179  // 0xB3
+#define FALCON_3 180  // 0xB4
+     
+#define SEAGULL 181   // 0xB5
+#define SEAGULL_1 182 // 0xB6
+#define SEAGULL_2 183 // 0xB7
+
 struct bundleInterfaceStruct
 {
     std::vector<std::string> FirmwareID;
@@ -475,6 +484,16 @@ bool PlatformIDValidation(std::string BoardName)
                  (board_id == DUCK_1) || (board_id == DUCK_2))
         {
             PlatformName = "Hornbill";
+        }
+        else if ((board_id == FALCON) || (board_id == FALCON_1) ||
+                 (board_id == FALCON_2) || (board_id == FALCON_3))
+        {
+            PlatformName = "Falcon";
+        }
+        else if ((board_id == SEAGULL) || (board_id == SEAGULL_1) ||
+                 (board_id == SEAGULL_2))
+        {
+            PlatformName = "Seagull";
         }
 
         if ((strcasecmp(BoardName.c_str(), PlatformName.c_str())) != SUCCESS)

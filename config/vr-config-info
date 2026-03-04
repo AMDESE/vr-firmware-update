@@ -73,7 +73,14 @@ install_vr_platform_config()
        ;;
        "A5" | "A6" | "A7" | "A8" | "A9" | "AA" | "AB" | "AC" | "AD") #hornbill board_ids
           cp /usr/sbin/hornbill-vr.json "$vrConfigFolder/platform-vr.json"
+      ;;
+      "B1" | "B2" | "B3" | "B4") #falcon Board ID
+          cp /usr/sbin/falcon-vr.json "$vrConfigFolder/platform-vr.json"
+       ;;
+       "B5" | "B6" | "B7") #seagull board_ids
+          cp /usr/sbin/seagull-vr.json "$vrConfigFolder/platform-vr.json"
        esac
+
 }
 
 # all arguments are function names. invoke directly
