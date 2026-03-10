@@ -65,9 +65,12 @@ install_vr_platform_config()
        "84") #kenya board_ids
           cp /usr/sbin/kenya-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "85") #kenya board_ids
+       "85") #nigeria board_ids
           cp /usr/sbin/nigeria-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
+       "8E")
+          cp /usr/sbin/ghana-vr.json "$vrConfigFolder/platform-vr.json"
+      ;;
        "9F" | "A0" | "A1") #Eagle Board ID
           cp /usr/sbin/eagle-vr.json "$vrConfigFolder/platform-vr.json"
        ;;

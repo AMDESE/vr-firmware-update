@@ -107,6 +107,8 @@ constexpr auto bundleVersionInterface =
 
 #define NIGERIA 133   // 0x85
 
+#define GHANA 142 // 0x8E
+
 /*Venice SLT boards*/
 #define SENEGAL_SLT 136 // 0x88
 #define ZAMBIA 139      // 0x8B
@@ -470,6 +472,10 @@ bool PlatformIDValidation(std::string BoardName)
         {
             PlatformName = "Nigeria";
         }
+        else if (board_id == GHANA)
+        {
+            PlatformName = "Ghana";
+        }
         else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
                  (board_id == EAGLE_2) || (board_id == ROBIN) ||
                  (board_id == SANDPIPER))
@@ -644,14 +650,16 @@ int main(int argc, char* argv[])
                         nlohmann::json vr_data;
                         vr_json_file >> vr_data;
 
-                        for (nlohmann::json record : vr_data["VRConfigs"])
+                        for (nlohmann::json platform_record : vr_data["VRConfigs"])
                         {
-                            if (record["SlaveAddress"] == SlaveAddr)
+                            std::string PlatformSlaveAddr = platform_record["SlaveAddress"];
+                            uint16_t PlatformSlaveAddress=std::stoul(PlatformSlaveAddr, nullptr, BASE_16);
+                            if (PlatformSlaveAddress == SlaveAddress)
                             {
-                                if (record.contains("PmbusAddress"))
+                                if (platform_record.contains("PmbusAddress"))
                                 {
                                     std::string PmbusAddr =
-                                        record["PmbusAddress"];
+                                        platform_record["PmbusAddress"];
                                     PmbusAddress =
                                         std::stoul(PmbusAddr, nullptr, BASE_16);
                                 }
@@ -783,7 +791,9 @@ int main(int argc, char* argv[])
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
-                    if ((bundleInterfaceObj.SlaveAddress[i] == SlaveAddr) &&
+                    std::string BundleSlaveAddr = bundleInterfaceObj.SlaveAddress[i];
+                    uint16_t BundleSlaveAddress=std::stoul(BundleSlaveAddr, nullptr, BASE_16);
+                    if ((BundleSlaveAddress == SlaveAddress) &&
                         (bundleInterfaceObj.UpdateStatus[i] == false))
                     {
                         if (strcasecmp(bundleInterfaceObj.Processor[i].c_str(),
