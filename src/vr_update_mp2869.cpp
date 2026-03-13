@@ -19,7 +19,7 @@ vr_update_mp2869::vr_update_mp2869(
     vr_update(Processor, Crc, Model, SlaveAddress, ConfigFilePath, Revision,
               PmbusAddress)
 {
-    DriverPath = MPS2856_DRIVER_PATH;
+    DriverPath = MPS2869_DRIVER_PATH;
 }
 
 bool vr_update_mp2869::crcCheckSum()

@@ -107,6 +107,8 @@ constexpr auto bundleVersionInterface =
 
 #define NIGERIA 133   // 0x85
 
+#define GHANA 142 // 0x8E
+
 /*Venice SLT boards*/
 #define SENEGAL_SLT 136 // 0x88
 #define ZAMBIA 139      // 0x8B
@@ -133,6 +135,15 @@ constexpr auto bundleVersionInterface =
 #define DUCK 162      // 0xA2
 #define DUCK_1 163    // 0xA3
 #define DUCK_2 164    // 0xA4
+
+#define FALCON 177    // 0xB1
+#define FALCON_1 178  // 0xB2
+#define FALCON_2 179  // 0xB3
+#define FALCON_3 180  // 0xB4
+     
+#define SEAGULL 181   // 0xB5
+#define SEAGULL_1 182 // 0xB6
+#define SEAGULL_2 183 // 0xB7
 
 struct bundleInterfaceStruct
 {
@@ -461,6 +472,10 @@ bool PlatformIDValidation(std::string BoardName)
         {
             PlatformName = "Nigeria";
         }
+        else if (board_id == GHANA)
+        {
+            PlatformName = "Ghana";
+        }
         else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
                  (board_id == EAGLE_2) || (board_id == ROBIN) ||
                  (board_id == SANDPIPER))
@@ -475,6 +490,16 @@ bool PlatformIDValidation(std::string BoardName)
                  (board_id == DUCK_1) || (board_id == DUCK_2))
         {
             PlatformName = "Hornbill";
+        }
+        else if ((board_id == FALCON) || (board_id == FALCON_1) ||
+                 (board_id == FALCON_2) || (board_id == FALCON_3))
+        {
+            PlatformName = "Falcon";
+        }
+        else if ((board_id == SEAGULL) || (board_id == SEAGULL_1) ||
+                 (board_id == SEAGULL_2))
+        {
+            PlatformName = "Seagull";
         }
 
         if ((strcasecmp(BoardName.c_str(), PlatformName.c_str())) != SUCCESS)
@@ -625,14 +650,16 @@ int main(int argc, char* argv[])
                         nlohmann::json vr_data;
                         vr_json_file >> vr_data;
 
-                        for (nlohmann::json record : vr_data["VRConfigs"])
+                        for (nlohmann::json platform_record : vr_data["VRConfigs"])
                         {
-                            if (record["SlaveAddress"] == SlaveAddr)
+                            std::string PlatformSlaveAddr = platform_record["SlaveAddress"];
+                            uint16_t PlatformSlaveAddress=std::stoul(PlatformSlaveAddr, nullptr, BASE_16);
+                            if (PlatformSlaveAddress == SlaveAddress)
                             {
-                                if (record.contains("PmbusAddress"))
+                                if (platform_record.contains("PmbusAddress"))
                                 {
                                     std::string PmbusAddr =
-                                        record["PmbusAddress"];
+                                        platform_record["PmbusAddress"];
                                     PmbusAddress =
                                         std::stoul(PmbusAddr, nullptr, BASE_16);
                                 }
@@ -764,7 +791,9 @@ int main(int argc, char* argv[])
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
-                    if ((bundleInterfaceObj.SlaveAddress[i] == SlaveAddr) &&
+                    std::string BundleSlaveAddr = bundleInterfaceObj.SlaveAddress[i];
+                    uint16_t BundleSlaveAddress=std::stoul(BundleSlaveAddr, nullptr, BASE_16);
+                    if ((BundleSlaveAddress == SlaveAddress) &&
                         (bundleInterfaceObj.UpdateStatus[i] == false))
                     {
                         if (strcasecmp(bundleInterfaceObj.Processor[i].c_str(),
