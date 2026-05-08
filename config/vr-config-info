@@ -71,10 +71,12 @@ install_vr_platform_config()
        "8E")
           cp /usr/sbin/ghana-vr.json "$vrConfigFolder/platform-vr.json"
       ;;
-       "9F" | "A0" | "A1") #Eagle Board ID
+       "9F" | "A0" | "A1" | "AE" | "AF" | "B8" | "B9" | "BA")
+          #Eagle and SLT Board IDs
           cp /usr/sbin/eagle-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
-       "A5" | "A6" | "A7" | "A8" | "A9" | "AA" | "AB" | "AC" | "AD") #hornbill board_ids
+       "A2" | "A3" | "A4" | "A5" | "A6" | "A7" | "A8" | "A9" | "AA" | "AB" | "AC" | "AD")
+          # hornbill and Duck Board IDs
           cp /usr/sbin/hornbill-vr.json "$vrConfigFolder/platform-vr.json"
       ;;
       "B1" | "B2" | "B3" | "B4") #falcon Board ID
@@ -90,4 +92,3 @@ install_vr_platform_config()
 if [ ! -z "$1" ] ; then
     $@
 fi
-
