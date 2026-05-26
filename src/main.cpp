@@ -793,8 +793,9 @@ int main(int argc, char* argv[])
                 {
                     std::string BundleSlaveAddr = bundleInterfaceObj.SlaveAddress[i];
                     uint16_t BundleSlaveAddress=std::stoul(BundleSlaveAddr, nullptr, BASE_16);
-                    if ((BundleSlaveAddress == SlaveAddress) &&
-                        (bundleInterfaceObj.UpdateStatus[i] == false))
+                    bool addressMatched = (BundleSlaveAddress == SlaveAddress) ||
+                      (BundleSlaveAddress == PmbusAddress);
+                    if (addressMatched && (bundleInterfaceObj.UpdateStatus[i] == false))
                     {
                         if (strcasecmp(bundleInterfaceObj.Processor[i].c_str(),
                                        Processor.c_str()) == SUCCESS)
