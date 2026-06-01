@@ -102,6 +102,7 @@ constexpr auto bundleVersionInterface =
 #define MOROCCO_1 131 // 0x83
 #define MOROCCO_2 135 // 0x87
 #define MALAWI 138    // 0x8A
+#define MARRAKESH 176 // 0xB0
 
 #define KENYA 132     // 0x84
 
@@ -111,9 +112,11 @@ constexpr auto bundleVersionInterface =
 
 /*Venice SLT boards*/
 #define SENEGAL_SLT 136 // 0x88
+#define SAHARA 137      // 0x89
 #define ZAMBIA 139      // 0x8B
 #define ZIMBABWE 140    // 0x8C
 #define ZANZIBAR 141    // 0x8D
+#define ZAIRE 158       // 0x9E
 
 /*SP8 Platform IDs */
 #define EAGLE 159      // 0x9F
@@ -455,12 +458,14 @@ bool PlatformIDValidation(std::string BoardName)
         else if ((board_id == CONGO) || (board_id == CONGO_1) ||
                  (board_id == CONGO_2) || (board_id == SENEGAL_SLT) ||
                  (board_id == ZAMBIA) || (board_id == ZIMBABWE) ||
-                 (board_id == ZANZIBAR))
+                 (board_id == ZANZIBAR) || (board_id == SAHARA) ||
+                 (board_id == ZAIRE))
         {
             PlatformName = "Congo";
         }
         else if ((board_id == MOROCCO) || (board_id == MOROCCO_1) ||
-                 (board_id == MOROCCO_2) || (board_id == MALAWI))
+                 (board_id == MOROCCO_2) || (board_id == MALAWI)  ||
+                 (board_id == MARRAKESH))
         {
             PlatformName = "Morocco";
         }
