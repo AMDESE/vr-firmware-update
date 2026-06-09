@@ -135,6 +135,7 @@ constexpr auto bundleVersionInterface =
 /*SP8 Venice SLT boards*/
 #define ROBIN 174     // 0xAE
 #define SANDPIPER 175 // 0xAF
+#define PEACOCK 184   // 0xB8
 #define DUCK 162      // 0xA2
 #define DUCK_1 163    // 0xA3
 #define DUCK_2 164    // 0xA4
@@ -483,7 +484,7 @@ bool PlatformIDValidation(std::string BoardName)
         }
         else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
                  (board_id == EAGLE_2) || (board_id == ROBIN) ||
-                 (board_id == SANDPIPER))
+                 (board_id == SANDPIPER) || (board_id == PEACOCK))
         {
             PlatformName = "Eagle";
         }
