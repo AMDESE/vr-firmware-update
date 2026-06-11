@@ -137,6 +137,7 @@ constexpr auto bundleVersionInterface =
 #define SANDPIPER 175 // 0xAF
 #define PENGUIN 186   // 0xBA
 #define PEACOCK 184   // 0xB8
+#define PELICAN 185   // 0xB9
 #define DUCK 162      // 0xA2
 #define DUCK_1 163    // 0xA3
 #define DUCK_2 164    // 0xA4
@@ -486,7 +487,7 @@ bool PlatformIDValidation(std::string BoardName)
         else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
                  (board_id == EAGLE_2) || (board_id == ROBIN) ||
                  (board_id == SANDPIPER) || (board_id == PENGUIN) ||
-                 (board_id == PEACOCK))
+                 (board_id == PEACOCK) || (board_id == PELICAN))
         {
             PlatformName = "Eagle";
         }
