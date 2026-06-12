@@ -633,6 +633,10 @@ int main(int argc, char* argv[])
             // iterate over the array of VR's
             for (json record : data["VR"])
             {
+                PmbusAddress = 0;
+                configFilePathArr.clear();
+                deviceVersion = 0;
+
                 if (record.contains("ModelNumber"))
                 {
                     Model = record["ModelNumber"];
@@ -658,17 +662,27 @@ int main(int argc, char* argv[])
 
                         for (nlohmann::json platform_record : vr_data["VRConfigs"])
                         {
-                            std::string PlatformSlaveAddr = platform_record["SlaveAddress"];
-                            uint16_t PlatformSlaveAddress=std::stoul(PlatformSlaveAddr, nullptr, BASE_16);
-                            if (PlatformSlaveAddress == SlaveAddress)
+                            std::string PlatformSlaveAddr =
+                                platform_record["SlaveAddress"];
+                            uint16_t PlatformSlaveAddress = std::stoul(
+                                PlatformSlaveAddr, nullptr, BASE_16);
+                            uint16_t PlatformPmbusAddress = 0;
+
+                            if (platform_record.contains("PmbusAddress"))
                             {
-                                if (platform_record.contains("PmbusAddress"))
-                                {
-                                    std::string PmbusAddr =
-                                        platform_record["PmbusAddress"];
-                                    PmbusAddress =
-                                        std::stoul(PmbusAddr, nullptr, BASE_16);
-                                }
+                                std::string PmbusAddr =
+                                    platform_record["PmbusAddress"];
+                                PlatformPmbusAddress =
+                                    std::stoul(PmbusAddr, nullptr, BASE_16);
+                            }
+
+                            if (PlatformSlaveAddress == SlaveAddress ||
+                                (PlatformPmbusAddress != 0 &&
+                                 PlatformPmbusAddress == SlaveAddress))
+                            {
+                                PmbusAddress = PlatformPmbusAddress;
+                                SlaveAddress = PlatformSlaveAddress;
+                                break;
                             }
                         }
                     }
@@ -827,6 +841,7 @@ int main(int argc, char* argv[])
                             {
                                 if (CrcMatched == true)
                                 {
+                                    bundleInterfaceObj.Checksum[i] = CrcConfig;
                                     bundleInterfaceObj.Status[i] =
                                         "Already UpToDate";
                                 }
