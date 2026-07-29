@@ -39,6 +39,12 @@ constexpr auto bundleVersionInterface =
 #define COMMAND_BOARD_ID ("/sbin/fw_printenv -n board_id")
 #define COMMAND_LEN 3
 
+static constexpr const char unsupportedBoardStatusMsg[] =
+    "Unsupported board ID";
+
+static constexpr const char vrBundlePlatformMismatchMsg[] =
+    "VR bundle not supported on this platform";
+
 /* SP5 Platform IDs */
 #define ONYX_SLT 61   // 0x3D
 #define ONYX_1 64     // 0x40
@@ -363,100 +369,102 @@ void setBundleVersionInterface(sdbusplus::bus::bus& bus)
         bundleVersionInterface, "Checksum", bundleInterfaceObj.Checksum);
 }
 
-bool PlatformIDValidation(std::string BoardName)
+bool readBoardIdFromEnv(unsigned int& board_id)
 {
-    FILE* pf;
-    unsigned int board_id = 0;
-    char data[COMMAND_LEN];
-    bool PLATID = false;
-    std::stringstream ss;
-    std::string PlatformName;
-
-    pf = popen(COMMAND_BOARD_ID, "r");
-    // Error handling
-    if (pf)
+    board_id = 0;
+    FILE* pf = popen(COMMAND_BOARD_ID, "r");
+    if (!pf)
     {
-        // Get the data from the process execution
-        if (fgets(data, COMMAND_LEN, pf))
-        {
-            ss << std::hex << (std::string)data;
-            ss >> board_id;
-            PLATID = true;
-            sd_journal_print(LOG_DEBUG, "Board ID: 0x%x, Board ID String: %s\n",
-                             board_id, data);
-        }
-        // the data is now in 'data'
-        pclose(pf);
+        return false;
+    }
 
+    char data[COMMAND_LEN];
+    if (!fgets(data, COMMAND_LEN, pf))
+    {
+        pclose(pf);
+        return false;
+    }
+    pclose(pf);
+
+    std::stringstream ss;
+    ss << std::hex << std::string(data);
+    ss >> board_id;
+    return true;
+}
+
+bool getPlatformNameFromBoardId(unsigned int board_id,
+                                std::string& platformName)
+{
+    platformName.clear();
         if ((board_id == ONYX_1) || (board_id == ONYX_2) ||
             (board_id == ONYX_3) || (board_id == ONYX_FR4) ||
             (board_id == ONYX_SLT))
         {
-            PlatformName = "Onyx";
+            platformName = "Onyx";
         }
         else if ((board_id == QUARTZ_DAP) || (board_id == QUARTZ_1) ||
                  (board_id == QUARTZ_2) || (board_id == QUARTZ_3) ||
                  (board_id == QUARTZ_FR4))
         {
-            PlatformName = "Quartz";
+            platformName = "Quartz";
         }
         else if ((board_id == RUBY_1) || (board_id == RUBY_2) ||
                  (board_id == RUBY_3))
         {
-            PlatformName = "Ruby";
+            platformName = "Ruby";
         }
         else if ((board_id == TITANITE_1) || (board_id == TITANITE_2) ||
                  (board_id == TITANITE_3) || (board_id == TITANITE_4) ||
                  (board_id == TITANITE_5) || (board_id == TITANITE_6))
         {
-            PlatformName = "Titanite";
+            platformName = "Titanite";
         }
         else if ((board_id == SHALE_64) || (board_id == SHALE_SLT) ||
                  (board_id == SHALE))
         {
-            PlatformName = "Shale";
+            platformName = "Shale";
         }
         else if (board_id == CINNABAR)
         {
-            PlatformName = "Cinnabar";
+            platformName = "Cinnabar";
         }
         else if ((board_id == SUNSTONE) || (board_id == SUNSTONE_DAP))
         {
-            PlatformName = "Sunstone";
+            platformName = "Sunstone";
         }
         else if ((board_id == CHALUPA) || (board_id == CHALUPA_1) ||
                  (board_id == CHALUPA_2))
         {
-            PlatformName = "Chalupa";
+            platformName = "Chalupa";
         }
         else if (board_id == HUAMBO)
         {
-            PlatformName = "Huambo";
+            platformName = "Huambo";
         }
         else if ((board_id == GALENA) || (board_id == GALENA_1) ||
                  (board_id == GALENA_2))
         {
-            PlatformName = "Galena";
+            platformName = "Galena";
         }
         else if (board_id == RECLUSE)
         {
-            PlatformName = "Recluse";
+            platformName = "Recluse";
         }
         else if ((board_id == PURICO) || (board_id == PURICO_1) ||
                  (board_id == PURICO_2))
         {
-            PlatformName = "Purico";
+            platformName = "Purico";
         }
         else if ((board_id == VOLCANO) || (board_id == VOLCANO_1) ||
                  (board_id == VOLCANO_2))
         {
-            PlatformName = "Volcano";
+            platformName = "Volcano";
         }
         else if ((board_id == SH5_1P_PWR) || (board_id == SH5_1P_OEM) ||
                  (board_id == SH5_1P_SLT) || (board_id == SH5_1P_OEM_P) ||
                  (board_id == SH5_2P_CABLED))
         {
-            PlatformName = "SH5";
+            platformName = "SH5";
         }
         else if ((board_id == CONGO) || (board_id == CONGO_1) ||
                  (board_id == CONGO_2) || (board_id == SENEGAL_SLT) ||
@@ -464,32 +472,32 @@ bool PlatformIDValidation(std::string BoardName)
                  (board_id == ZANZIBAR) || (board_id == SAHARA) ||
                  (board_id == ZAIRE))
         {
-            PlatformName = "Congo";
+            platformName = "Congo";
         }
         else if ((board_id == MOROCCO) || (board_id == MOROCCO_1) ||
                  (board_id == MOROCCO_2) || (board_id == MALAWI)  ||
                  (board_id == MARRAKESH))
         {
-            PlatformName = "Morocco";
+            platformName = "Morocco";
         }
         else if (board_id == KENYA)
         {
-            PlatformName = "Kenya";
+            platformName = "Kenya";
         }
         else if (board_id == NIGERIA)
         {
-            PlatformName = "Nigeria";
+            platformName = "Nigeria";
         }
         else if (board_id == GHANA)
         {
-            PlatformName = "Ghana";
+            platformName = "Ghana";
         }
         else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
                  (board_id == EAGLE_2) || (board_id == ROBIN) ||
                  (board_id == SANDPIPER) || (board_id == PENGUIN) ||
                  (board_id == PEACOCK) || (board_id == PELICAN))
         {
-            PlatformName = "Eagle";
+            platformName = "Eagle";
         }
         else if ((board_id == HORNBILL) || (board_id == HORNBILL_1) ||
                  (board_id == HORNBILL_2) || (board_id == HORNBILL_3) ||
@@ -498,27 +506,75 @@ bool PlatformIDValidation(std::string BoardName)
                  (board_id == HORNBILL_8) || (board_id == DUCK) ||
                  (board_id == DUCK_1) || (board_id == DUCK_2))
         {
-            PlatformName = "Hornbill";
+            platformName = "Hornbill";
         }
         else if ((board_id == FALCON) || (board_id == FALCON_1) ||
                  (board_id == FALCON_2) || (board_id == FALCON_3))
         {
-            PlatformName = "Falcon";
+            platformName = "Falcon";
         }
         else if ((board_id == SEAGULL) || (board_id == SEAGULL_1) ||
                  (board_id == SEAGULL_2))
         {
-            PlatformName = "Seagull";
+            platformName = "Seagull";
         }
 
-        if ((strcasecmp(BoardName.c_str(), PlatformName.c_str())) != SUCCESS)
-        {
-            sd_journal_print(
-                LOG_ERR,
-                "The board name from config file does not match with the platform "
-                "Skipping the update\n");
-            return false;
-        }
+    if (platformName.empty())
+    {
+        return false;
+    }
+    return true;
+}
+
+void publishVrBundleStatusMessage(sdbusplus::bus::bus& bus,
+                                  const char* message)
+{
+    const std::string msg(message);
+    for (auto& status : bundleInterfaceObj.Status)
+    {
+        status = msg;
+    }
+
+    if (!bundleInterfaceObj.Status.empty())
+    {
+        setProperty<std::vector<std::string>>(
+            bus, bmcUpdaterService.c_str(), vrBundlePath.c_str(),
+            bundleVersionInterface, "Status", bundleInterfaceObj.Status);
+    }
+}
+
+void publishUnsupportedBoardStatus(sdbusplus::bus::bus& bus)
+{
+    publishVrBundleStatusMessage(bus, unsupportedBoardStatusMsg);
+}
+
+bool PlatformIDValidation(std::string BoardName)
+{
+    unsigned int board_id = 0;
+    if (!readBoardIdFromEnv(board_id))
+    {
+        sd_journal_print(LOG_ERR,
+                         "Failed to read board_id from U-Boot environment\n");
+        return false;
+    }
+
+    std::string platformName;
+    if (!getPlatformNameFromBoardId(board_id, platformName))
+    {
+        sd_journal_print(LOG_ERR, "Unsupported board ID: 0x%x\n", board_id);
+        return false;
+    }
+
+    sd_journal_print(LOG_DEBUG, "Board ID: 0x%x maps to platform %s\n",
+                     board_id, platformName.c_str());
+
+    if ((strcasecmp(BoardName.c_str(), platformName.c_str())) != SUCCESS)
+    {
+        sd_journal_print(
+            LOG_ERR,
+            "The board name from config file does not match with the platform "
+            "Skipping the update\n");
+        return false;
     }
     return true;
 }
@@ -580,6 +636,14 @@ int main(int argc, char* argv[])
                                  "Copying vr-platform-config file failed\n");
                 return FAILURE;
             }
+
+            if (!std::filesystem::exists(VR_PLATFORM_FILE))
+            {
+                sd_journal_print(
+                    LOG_ERR,
+                    "Platform VR config missing (unsupported board_id)\n");
+                return FAILURE;
+            }
         }
 
         if (std::filesystem::exists(PATCH_VERSION_FILE))
@@ -627,11 +691,51 @@ int main(int argc, char* argv[])
             }
         }
 
+        unsigned int boardIdCheck = 0;
+        std::string platformNameCheck;
+        if (!readBoardIdFromEnv(boardIdCheck) ||
+            !getPlatformNameFromBoardId(boardIdCheck, platformNameCheck))
+        {
+            sd_journal_print(LOG_ERR,
+                             "Unsupported board ID (0x%x): VR update "
+                             "aborted\n",
+                             boardIdCheck);
+            publishUnsupportedBoardStatus(bus);
+            return FAILURE;
+        }
+
         if (std::filesystem::exists(vrBundleJsonFile))
         {
             std::ifstream json_file(vrBundleJsonFile);
             json data;
             json_file >> data;
+
+            for (json mismatchRecord : data["VR"])
+            {
+                if (!mismatchRecord.contains("BoardName"))
+                {
+                    sd_journal_print(
+                        LOG_ERR,
+                        "Json file doesnt have BoardName details. Update "
+                        "aborted\n");
+                    return FAILURE;
+                }
+
+                std::string bundleBoardName = mismatchRecord["BoardName"];
+                if ((strcasecmp(bundleBoardName.c_str(),
+                                platformNameCheck.c_str())) != SUCCESS)
+                {
+                    sd_journal_print(
+                        LOG_ERR,
+                        "VR bundle platform mismatch: BMC platform %s "
+                        "(board_id 0x%x), bundle targets %s\n",
+                        platformNameCheck.c_str(), boardIdCheck,
+                        bundleBoardName.c_str());
+                    publishVrBundleStatusMessage(
+                        bus, vrBundlePlatformMismatchMsg);
+                    return FAILURE;
+                }
+            }
 
             // iterate over the array of VR's
             for (json record : data["VR"])
@@ -649,7 +753,7 @@ int main(int argc, char* argv[])
                     sd_journal_print(
                         LOG_ERR,
                         "Json file doesnt have model number. Update aborted\n");
-                    return false;
+                    return FAILURE;
                 }
 
                 if (record.contains("SlaveAddress"))
@@ -695,7 +799,7 @@ int main(int argc, char* argv[])
                     sd_journal_print(
                         LOG_ERR,
                         "Json file doesnt have slave address. Update aborted\n");
-                    return false;
+                    return FAILURE;
                 }
 
                 if (record.contains("CRC"))
@@ -713,7 +817,7 @@ int main(int argc, char* argv[])
                     sd_journal_print(
                         LOG_ERR,
                         "Json file doesnt have Processor details. Update aborted\n");
-                    return false;
+                    return FAILURE;
                 }
 
                 if (record.contains("BoardName"))
@@ -725,7 +829,7 @@ int main(int argc, char* argv[])
                     sd_journal_print(
                         LOG_ERR,
                         "Json file doesnt have BoadrdName details. Update aborted\n");
-                    return false;
+                    return FAILURE;
                 }
 
                 if (record.contains("ConfigFile"))
@@ -738,7 +842,7 @@ int main(int argc, char* argv[])
                     sd_journal_print(
                         LOG_ERR,
                         "Json file doesnt have ConfigFile details. Update aborted\n");
-                    return false;
+                    return FAILURE;
                 }
 
                 if (record.contains("ConfigFile"))
@@ -767,7 +871,7 @@ int main(int argc, char* argv[])
                     sd_journal_print(
                         LOG_ERR,
                         "Json file doesnt have ConfigFile details. Update aborted\n");
-                    return false;
+                    return FAILURE;
                 }
 
                 if (record.contains("Version"))
@@ -784,7 +888,7 @@ int main(int argc, char* argv[])
                     sd_journal_print(
                         LOG_ERR,
                         "Json file doesnt have UpdateType details. Update aborted\n");
-                    return false;
+                    return FAILURE;
                 }
 
                 if (record.contains("Revision"))
@@ -800,7 +904,9 @@ int main(int argc, char* argv[])
 
                 if (PlatformIDValidation(BoardName) == false)
                 {
-                    return false;
+                    publishVrBundleStatusMessage(
+                        bus, vrBundlePlatformMismatchMsg);
+                    return FAILURE;
                 }
 
                 sd_journal_print(LOG_INFO,
