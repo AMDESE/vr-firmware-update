@@ -183,19 +183,38 @@ bool vr_update::findBusNumber()
 
         if (slaveDevice.empty())
         {
+            sd_journal_print(LOG_ERR,
+                "VR update failed: no device found for %s at slave address 0x%x.",
+                Processor.c_str(),SlaveAddress);
             return false;
         }
         std::sort(slaveDevice.begin(), slaveDevice.end());
 
-        if ((Processor.compare(SOCKET_0) == SUCCESS) ||
-            (slaveDevice.size() == 1))
+        int index = FAILURE;
+        if ((Processor.compare(SOCKET_0) == SUCCESS))
         {
-            DeviceName = slaveDevice[INDEX_0];
+            index = INDEX_0;
         }
         else if (Processor.compare(SOCKET_1) == SUCCESS)
         {
-            DeviceName = slaveDevice[INDEX_1];
+            index = INDEX_1;
         }
+        else 
+        {
+            index = INDEX_0;
+        }
+
+        if(index >= static_cast<int>(slaveDevice.size()))
+        {
+            sd_journal_print(LOG_ERR,
+                "VR update failed: device for %s at slave address 0x%x not found "
+                "(found %zu device(s)). Aborting to avoid programming the wrong socket",
+                Processor.c_str(),SlaveAddress,slaveDevice.size());
+            return false;
+        }
+
+        DeviceName = slaveDevice[index];
+
         size_t found = DeviceName.find("-");
         BusNumber = std::stoi(DeviceName.substr(0, found));
     }
@@ -213,6 +232,32 @@ bool vr_update::findBusNumber()
     {
         return false;
     }
+}
+
+bool vr_update::ReadbackVerify()
+{
+    sd_journal_print(LOG_INFO,
+        "Readback verification: reading back %s VR at slave address 0x%x",
+         Processor.c_str(),SlaveAddress);
+    
+    usleep(SLEEP_1);
+    
+    crcCheckSum();
+
+    if(CrcMatched == true)
+    {
+        sd_journal_print(LOG_INFO,
+            "Readback Passed: %s VR at slave address 0x%x -programmed firmware verified",
+            Processor.c_str(),SlaveAddress);
+        return true;
+    }
+    else
+    {
+        sd_journal_print(LOG_ERR,
+            "Readback Failed: %s VR at slave address 0x%x -device CRC does not match programmed image",
+            Processor.c_str(),SlaveAddress);
+    }
+    return false;
 }
 
 bool vr_update::openI2cDevice()
