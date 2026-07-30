@@ -590,6 +590,51 @@ inline void trim(std::string& str)
               str.end());
 }
 
+static bool parseHexU16(const std::string& str, uint16_t& out,
+                        const char* fieldName)
+{
+    if (str.empty())
+    {
+        sd_journal_print(LOG_ERR, "VR bundle: empty %s", fieldName);
+        return false;
+    }
+    try
+    {
+        unsigned long val = std::stoul(str, nullptr, BASE_16);
+        out = static_cast<uint16_t>(val);
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        sd_journal_print(LOG_ERR,
+                         "VR bundle: invalid hex in %s '%s': %s",
+                         fieldName, str.c_str(), e.what());
+        return false;
+    }
+}
+
+static bool parseHexU32(const std::string& str, uint32_t& out,
+                        const char* fieldName)
+{
+    if (str.empty())
+    {
+        sd_journal_print(LOG_ERR, "VR bundle: empty %s", fieldName);
+        return false;
+    }
+    try
+    {
+        out = static_cast<uint32_t>(std::stoul(str, nullptr, BASE_16));
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        sd_journal_print(LOG_ERR,
+                         "VR bundle: invalid hex in %s '%s': %s",
+                         fieldName, str.c_str(), e.what());
+        return false;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     int ret = FAILURE;
@@ -756,11 +801,15 @@ int main(int argc, char* argv[])
                     return FAILURE;
                 }
 
-                if (record.contains("SlaveAddress"))
+                if (record.contains("SlaveAddress") &&
+                    record["SlaveAddress"].is_string())
                 {
                     SlaveAddr = record["SlaveAddress"];
 
-                    SlaveAddress = std::stoul(SlaveAddr, nullptr, BASE_16);
+                    if (!parseHexU16(SlaveAddr, SlaveAddress, "SlaveAddress"))
+                    {
+                        return FAILURE;
+                    }
                     if (std::filesystem::exists(VR_PLATFORM_FILE))
                     {
                         std::ifstream vr_json_file(VR_PLATFORM_FILE);
@@ -771,16 +820,27 @@ int main(int argc, char* argv[])
                         {
                             std::string PlatformSlaveAddr =
                                 platform_record["SlaveAddress"];
-                            uint16_t PlatformSlaveAddress = std::stoul(
-                                PlatformSlaveAddr, nullptr, BASE_16);
+                            uint16_t PlatformSlaveAddress = 0;
                             uint16_t PlatformPmbusAddress = 0;
+
+                            if (!platform_record["SlaveAddress"].is_string() ||
+                                !parseHexU16(PlatformSlaveAddr,
+                                             PlatformSlaveAddress,
+                                             "Platform SlaveAddress"))
+                            {
+                                continue;
+                            }
 
                             if (platform_record.contains("PmbusAddress"))
                             {
                                 std::string PmbusAddr =
                                     platform_record["PmbusAddress"];
-                                PlatformPmbusAddress =
-                                    std::stoul(PmbusAddr, nullptr, BASE_16);
+                                if (!platform_record["PmbusAddress"].is_string() ||
+                                    !parseHexU16(PmbusAddr, PlatformPmbusAddress,
+                                                 "PmbusAddress"))
+                                {
+                                    continue;
+                                }
                             }
 
                             if (PlatformSlaveAddress == SlaveAddress ||
@@ -802,10 +862,13 @@ int main(int argc, char* argv[])
                     return FAILURE;
                 }
 
-                if (record.contains("CRC"))
+                if (record.contains("CRC") && record["CRC"].is_string())
                 {
                     CrcConfig = record["CRC"];
-                    Crc = std::stoul(CrcConfig, nullptr, BASE_16);
+                    if (!parseHexU32(CrcConfig, Crc, "CRC"))
+                    {
+                        return FAILURE;
+                    }
                 }
 
                 if (record.contains("Processor"))
@@ -921,7 +984,12 @@ int main(int argc, char* argv[])
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
                     std::string BundleSlaveAddr = bundleInterfaceObj.SlaveAddress[i];
-                    uint16_t BundleSlaveAddress=std::stoul(BundleSlaveAddr, nullptr, BASE_16);
+                    uint16_t BundleSlaveAddress = 0;
+                    if (!parseHexU16(BundleSlaveAddr, BundleSlaveAddress,
+                                     "Bundle SlaveAddress"))
+                    {
+                        continue;
+                    }
                     bool addressMatched = (BundleSlaveAddress == SlaveAddress) ||
                       (BundleSlaveAddress == PmbusAddress);
                     if (addressMatched && (bundleInterfaceObj.UpdateStatus[i] == false))
