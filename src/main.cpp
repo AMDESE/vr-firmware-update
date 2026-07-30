@@ -186,7 +186,6 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
 
         if (rc != true)
         {
-            sd_journal_print(LOG_ERR, "Unable to find the bus number\n");
             ret = FAILURE;
             goto Clean;
         }
@@ -232,6 +231,14 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
             ret = FAILURE;
             goto Clean;
         }
+
+        rc = vr_update_obj->ReadbackVerify();
+        if (rc != true)
+        {
+            ret = FAILURE;
+            goto Clean;
+        }
+        
         ret = SUCCESS;
     Clean:
         vr_update_obj->closeI2cDevice();
@@ -867,13 +874,32 @@ int main(int argc, char* argv[])
                 }
 
                 sd_journal_print(LOG_INFO,
-                                 "Updating VR for the Slave Address = 0x%x",
-                                 SlaveAddress);
+                                 "Updating %s VR for the Slave Address = 0x%x",
+                                  Processor.c_str(),SlaveAddress);
 
                 ret = vrUpdate(Model, SlaveAddress, Crc, &deviceVersion,
                                Processor, configFilePath, UpdateType,
                                &CrcMatched, Revision, PmbusAddress,
                                configFilePathArr);
+
+                if (ret != SUCCESS && CrcMatched == false)
+                {
+                    rc = FAILURE;
+                }
+
+                if (ret == SUCCESS)
+                {
+                    sd_journal_print(LOG_INFO,
+                        "VR update completed for %s at slave address 0x%x.",
+                        Processor.c_str(),SlaveAddress);
+                }
+
+                else if (CrcMatched == true)
+                {
+                    sd_journal_print(LOG_INFO,
+                        "VR already up to date for %s at slave address 0x%x.",
+                        Processor.c_str(),SlaveAddress);
+                }
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {

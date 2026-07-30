@@ -169,6 +169,7 @@ class vr_update
     virtual bool UpdateFirmware() = 0;
     virtual bool crcCheckSum() = 0;
     virtual bool ValidateFirmware() = 0;
+    bool ReadbackVerify();
     bool CrcMatched;
     uint32_t devVersion = 0;
 };
