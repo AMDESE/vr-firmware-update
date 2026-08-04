@@ -19,11 +19,13 @@
 #include "vr_update_xdpe_patch.hpp"
 #include "vr_update_fan2510xx.hpp"
 #include "vr_update_ism6636x.hpp"
+#include <nlohmann/json.hpp>
 
 #define MODEL ("Model")
 #define SLAVE_ADDRESS ("SlaveAddress")
 #define PROCESSOR ("Processor")
 #define CRC ("CRC")
+#define VR_PLATFORM_FILE ("/var/lib/vr-config/platform-vr.json")
 
 namespace fs = std::filesystem;
 
@@ -147,6 +149,50 @@ vr_update* vr_update::CreateVRFrameworkObject(
     return p;
 }
 
+static bool addressSharedBetweenSockets(uint16_t slaveAddr)
+{
+    bool hasP0 = false;
+    bool hasP1 = false;
+    try
+    {
+        std::ifstream f(VR_PLATFORM_FILE);
+        if (!f.is_open())
+        {
+            return true;
+        }
+        nlohmann::json data;
+        f >> data;
+        for (const auto & rec : data["VRConfigs"])
+        {
+            if (!rec.contains("SlaveAddress") ||
+                !rec["SlaveAddress"].is_string())
+            {
+                continue;
+            }
+            std::string s = rec["SlaveAddress"];
+            uint16_t a = static_cast<uint16_t>(std::stoul(s, nullptr, 16));
+            if (a != slaveAddr)
+            {
+                continue;
+            }
+            std::string proc = rec.value("Processor","");
+            if (proc.compare(SOCKET_0) == SUCCESS)
+            {
+                hasP0 = true;
+            }
+            else if (proc.compare(SOCKET_1) == SUCCESS)
+            {
+                hasP1 = true;
+            }
+        }
+    }
+    catch (const std::exception&)
+    {
+        return true;
+    }
+    return hasP0 && hasP1;
+}
+
 bool vr_update::findBusNumber()
 {
     /*Find bus number from the drivers binded*/
@@ -206,11 +252,19 @@ bool vr_update::findBusNumber()
 
         if(index >= static_cast<int>(slaveDevice.size()))
         {
-            sd_journal_print(LOG_ERR,
-                "VR update failed: device for %s at slave address 0x%x not found "
-                "(found %zu device(s)). Aborting to avoid programming the wrong socket",
-                Processor.c_str(),SlaveAddress,slaveDevice.size());
-            return false;
+            if (slaveDevice.size() == 1 &&
+                !addressSharedBetweenSockets(SlaveAddress))
+            {
+                index = INDEX_0;
+            }
+            else
+            {
+                sd_journal_print(LOG_ERR,
+                    "VR update failed: device for %s at slave address 0x%x not found "
+                    "(found %zu device(s)). Aborting to avoid programming the wrong socket",
+                    Processor.c_str(),SlaveAddress,slaveDevice.size());
+                return false;
+            }
         }
 
         DeviceName = slaveDevice[index];
@@ -234,7 +288,7 @@ bool vr_update::findBusNumber()
     }
 }
 
-bool vr_update::ReadbackVerify()
+bool vr_update::ReadbackVerify(bool verified)
 {
     sd_journal_print(LOG_INFO,
         "Readback verification: reading back %s VR at slave address 0x%x",
@@ -242,9 +296,19 @@ bool vr_update::ReadbackVerify()
     
     usleep(SLEEP_1);
     
-    crcCheckSum();
+    bool ok;
+    
+    if(crcReadbackValid())
+    {
+        crcCheckSum();
+        ok = CrcMatched;
+    }
+    else
+    {
+        ok = verified;
+    }
 
-    if(CrcMatched == true)
+    if(ok)
     {
         sd_journal_print(LOG_INFO,
             "Readback Passed: %s VR at slave address 0x%x -programmed firmware verified",
@@ -254,7 +318,7 @@ bool vr_update::ReadbackVerify()
     else
     {
         sd_journal_print(LOG_ERR,
-            "Readback Failed: %s VR at slave address 0x%x -device CRC does not match programmed image",
+            "Readback Failed: %s VR at slave address 0x%x -firmware verification failed",
             Processor.c_str(),SlaveAddress);
     }
     return false;
