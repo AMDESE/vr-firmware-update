@@ -232,13 +232,7 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
         rc = vr_update_obj->ValidateFirmware();
         *Version = vr_update_obj->devVersion;
 
-        if (rc != true)
-        {
-            ret = FAILURE;
-            goto Clean;
-        }
-
-        rc = vr_update_obj->ReadbackVerify();
+        rc = vr_update_obj->ReadbackVerify(rc);
         if (rc != true)
         {
             ret = FAILURE;

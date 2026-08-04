@@ -82,6 +82,7 @@ class vr_update_infineon_xdpe : public vr_update
     virtual bool isUpdatable();
     virtual bool UpdateFirmware();
     virtual bool ValidateFirmware();
+    bool crcReadbackValid() override { return true; }
 };
 
 #endif
