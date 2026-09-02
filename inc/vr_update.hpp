@@ -126,6 +126,7 @@ extern "C"
 #define MPS2869_DRIVER_PATH ("/sys/bus/i2c/drivers/mp2869/")
 #define XDPE_DRIVER_PATH ("/sys/bus/i2c/drivers/xdpe12284/")
 #define PMBUS_DRIVER_PATH ("/sys/bus/i2c/drivers/pmbus/")
+#define TDA_DRIVER_PATH ("/sys/bus/i2c/drivers/tda38740/")
 #define SLEEP_1 (1000000)
 #define SLEEP_2 (2000000)
 #define SLEEP_1000 (1000)
@@ -147,6 +148,9 @@ class vr_update
     std::string Model;
     std::string ConfigFilePath;
     std::string DriverPath;
+    /* Fallback driver directory, used when the VR part is claimed by a
+       dedicated driver on some platforms and by the generic one on others */
+    std::string AltDriverPath;
     std::string Revision;
     int fd;
     char updateFilePath[FILE_PATH_SIZE];

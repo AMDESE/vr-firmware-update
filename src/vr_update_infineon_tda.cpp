@@ -16,6 +16,7 @@ vr_update_infineon_tda::vr_update_infineon_tda(
               PmbusAddress)
 {
     DriverPath = PMBUS_DRIVER_PATH;
+    AltDriverPath = TDA_DRIVER_PATH;
 }
 
 bool vr_update_infineon_tda::crcCheckSum()
