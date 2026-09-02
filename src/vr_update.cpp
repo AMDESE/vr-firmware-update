@@ -212,10 +212,20 @@ bool vr_update::findBusNumber()
         ss << std::hex << PmbusAddress;
     }
     std::string SlaveAddrStr = ss.str();
-    const char* DriverPathStr = DriverPath.c_str();
 
-    if ((dir = opendir(DriverPathStr)) != NULL)
+    std::vector<std::string> driverPaths{DriverPath};
+    if (!AltDriverPath.empty())
     {
+        driverPaths.push_back(AltDriverPath);
+    }
+
+    for (const auto& driverDir : driverPaths)
+    {
+        if ((dir = opendir(driverDir.c_str())) == NULL)
+        {
+            continue;
+        }
+
         while ((entry = readdir(dir)) != NULL)
         {
             std::string fname = entry->d_name;
@@ -227,51 +237,58 @@ bool vr_update::findBusNumber()
         }
         closedir(dir);
 
-        if (slaveDevice.empty())
+        if (!slaveDevice.empty())
+        {
+            /* Unbind and bind must use the driver that actually claimed it */
+            DriverPath = driverDir;
+            break;
+        }
+    }
+
+    if (slaveDevice.empty())
+    {
+        sd_journal_print(LOG_ERR,
+            "VR update failed: no device found for %s at slave address 0x%x.",
+            Processor.c_str(),SlaveAddress);
+        return false;
+    }
+    std::sort(slaveDevice.begin(), slaveDevice.end());
+
+    int index = FAILURE;
+    if ((Processor.compare(SOCKET_0) == SUCCESS))
+    {
+        index = INDEX_0;
+    }
+    else if (Processor.compare(SOCKET_1) == SUCCESS)
+    {
+        index = INDEX_1;
+    }
+    else
+    {
+        index = INDEX_0;
+    }
+
+    if(index >= static_cast<int>(slaveDevice.size()))
+    {
+        if (slaveDevice.size() == 1 &&
+            !addressSharedBetweenSockets(SlaveAddress))
+        {
+            index = INDEX_0;
+        }
+        else
         {
             sd_journal_print(LOG_ERR,
-                "VR update failed: no device found for %s at slave address 0x%x.",
-                Processor.c_str(),SlaveAddress);
+                "VR update failed: device for %s at slave address 0x%x not found "
+                "(found %zu device(s)). Aborting to avoid programming the wrong socket",
+                Processor.c_str(),SlaveAddress,slaveDevice.size());
             return false;
         }
-        std::sort(slaveDevice.begin(), slaveDevice.end());
-
-        int index = FAILURE;
-        if ((Processor.compare(SOCKET_0) == SUCCESS))
-        {
-            index = INDEX_0;
-        }
-        else if (Processor.compare(SOCKET_1) == SUCCESS)
-        {
-            index = INDEX_1;
-        }
-        else 
-        {
-            index = INDEX_0;
-        }
-
-        if(index >= static_cast<int>(slaveDevice.size()))
-        {
-            if (slaveDevice.size() == 1 &&
-                !addressSharedBetweenSockets(SlaveAddress))
-            {
-                index = INDEX_0;
-            }
-            else
-            {
-                sd_journal_print(LOG_ERR,
-                    "VR update failed: device for %s at slave address 0x%x not found "
-                    "(found %zu device(s)). Aborting to avoid programming the wrong socket",
-                    Processor.c_str(),SlaveAddress,slaveDevice.size());
-                return false;
-            }
-        }
-
-        DeviceName = slaveDevice[index];
-
-        size_t found = DeviceName.find("-");
-        BusNumber = std::stoi(DeviceName.substr(0, found));
     }
+
+    DeviceName = slaveDevice[index];
+
+    size_t found = DeviceName.find("-");
+    BusNumber = std::stoi(DeviceName.substr(0, found));
 
     std::string UnbindDriver =
         "echo " + DeviceName + "> " + DriverPath + "unbind";
