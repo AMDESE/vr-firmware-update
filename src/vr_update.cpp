@@ -7,8 +7,10 @@
 
 #include "vr_update.hpp"
 
+#include "vr_update_fan2510xx.hpp"
 #include "vr_update_infineon_tda.hpp"
 #include "vr_update_infineon_xdpe.hpp"
+#include "vr_update_ism6636x.hpp"
 #include "vr_update_mp2869.hpp"
 #include "vr_update_mps.hpp"
 #include "vr_update_mps285x.hpp"
@@ -17,8 +19,7 @@
 #include "vr_update_renesas_gen3p5_patch.hpp"
 #include "vr_update_renesas_patch.hpp"
 #include "vr_update_xdpe_patch.hpp"
-#include "vr_update_fan2510xx.hpp"
-#include "vr_update_ism6636x.hpp"
+
 #include <nlohmann/json.hpp>
 
 #define MODEL ("Model")
@@ -43,7 +44,8 @@ vr_update::vr_update(std::string Processor, uint32_t Crc, std::string Model,
 vr_update* vr_update::CreateVRFrameworkObject(
     std::string Model, uint16_t SlaveAddress, uint32_t Crc,
     std::string Processor, std::string configFilePath, std::string UpdateType,
-    std::string Revision, uint16_t PmbusAddress, std::vector<std::string>& configFilePathArr)
+    std::string Revision, uint16_t PmbusAddress,
+    std::vector<std::string>& configFilePathArr)
 {
     vr_update* p;
     if ((strcasecmp(UpdateType.c_str(), PATCH)) == SUCCESS)
@@ -68,7 +70,7 @@ vr_update* vr_update::CreateVRFrameworkObject(
 
             p = new vr_update_renesas_gen3p5_patch(
                 Processor, Crc, Model, SlaveAddress, configFilePath, Revision,
-                PmbusAddress,configFilePathArr);
+                PmbusAddress, configFilePathArr);
         }
         else if (strcasecmp(Model.c_str(), INFINEON_XDPE) == SUCCESS)
         {
@@ -132,7 +134,8 @@ vr_update* vr_update::CreateVRFrameworkObject(
     else if ((strcasecmp(Model.c_str(), FAN251015) == SUCCESS) ||
              (strcasecmp(Model.c_str(), FAN251030) == SUCCESS))
     {
-        p = new vr_update_fan2510xx(Processor,Crc,Model,SlaveAddress,configFilePath,Revision,PmbusAddress);
+        p = new vr_update_fan2510xx(Processor, Crc, Model, SlaveAddress,
+                                    configFilePath, Revision, PmbusAddress);
     }
     else if ((strcasecmp(Model.c_str(), ISM6636A) == SUCCESS) ||
              (strcasecmp(Model.c_str(), ISM6636B) == SUCCESS) ||
@@ -162,7 +165,7 @@ static bool addressSharedBetweenSockets(uint16_t slaveAddr)
         }
         nlohmann::json data;
         f >> data;
-        for (const auto & rec : data["VRConfigs"])
+        for (const auto& rec : data["VRConfigs"])
         {
             if (!rec.contains("SlaveAddress") ||
                 !rec["SlaveAddress"].is_string())
@@ -175,7 +178,7 @@ static bool addressSharedBetweenSockets(uint16_t slaveAddr)
             {
                 continue;
             }
-            std::string proc = rec.value("Processor","");
+            std::string proc = rec.value("Processor", "");
             if (proc.compare(SOCKET_0) == SUCCESS)
             {
                 hasP0 = true;
@@ -247,9 +250,10 @@ bool vr_update::findBusNumber()
 
     if (slaveDevice.empty())
     {
-        sd_journal_print(LOG_ERR,
+        sd_journal_print(
+            LOG_ERR,
             "VR update failed: no device found for %s at slave address 0x%x.",
-            Processor.c_str(),SlaveAddress);
+            Processor.c_str(), SlaveAddress);
         return false;
     }
     std::sort(slaveDevice.begin(), slaveDevice.end());
@@ -268,7 +272,7 @@ bool vr_update::findBusNumber()
         index = INDEX_0;
     }
 
-    if(index >= static_cast<int>(slaveDevice.size()))
+    if (index >= static_cast<int>(slaveDevice.size()))
     {
         if (slaveDevice.size() == 1 &&
             !addressSharedBetweenSockets(SlaveAddress))
@@ -277,10 +281,11 @@ bool vr_update::findBusNumber()
         }
         else
         {
-            sd_journal_print(LOG_ERR,
+            sd_journal_print(
+                LOG_ERR,
                 "VR update failed: device for %s at slave address 0x%x not found "
                 "(found %zu device(s)). Aborting to avoid programming the wrong socket",
-                Processor.c_str(),SlaveAddress,slaveDevice.size());
+                Processor.c_str(), SlaveAddress, slaveDevice.size());
             return false;
         }
     }
@@ -307,15 +312,16 @@ bool vr_update::findBusNumber()
 
 bool vr_update::ReadbackVerify(bool verified)
 {
-    sd_journal_print(LOG_INFO,
+    sd_journal_print(
+        LOG_INFO,
         "Readback verification: reading back %s VR at slave address 0x%x",
-         Processor.c_str(),SlaveAddress);
-    
+        Processor.c_str(), SlaveAddress);
+
     usleep(SLEEP_1);
-    
+
     bool ok;
-    
-    if(crcReadbackValid())
+
+    if (crcReadbackValid())
     {
         crcCheckSum();
         ok = CrcMatched;
@@ -325,18 +331,20 @@ bool vr_update::ReadbackVerify(bool verified)
         ok = verified;
     }
 
-    if(ok)
+    if (ok)
     {
-        sd_journal_print(LOG_INFO,
+        sd_journal_print(
+            LOG_INFO,
             "Readback Passed: %s VR at slave address 0x%x -programmed firmware verified",
-            Processor.c_str(),SlaveAddress);
+            Processor.c_str(), SlaveAddress);
         return true;
     }
     else
     {
-        sd_journal_print(LOG_ERR,
+        sd_journal_print(
+            LOG_ERR,
             "Readback Failed: %s VR at slave address 0x%x -firmware verification failed",
-            Processor.c_str(),SlaveAddress);
+            Processor.c_str(), SlaveAddress);
     }
     return false;
 }
