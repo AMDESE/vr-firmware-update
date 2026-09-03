@@ -5,8 +5,9 @@
  * Author: Abinaya Dhandapani
  */
 
-#include "vr_update.hpp"
 #include "vr_update_infineon_tda.hpp"
+
+#include "vr_update.hpp"
 
 vr_update_infineon_tda::vr_update_infineon_tda(
     std::string Processor, uint32_t Crc, std::string Model,
