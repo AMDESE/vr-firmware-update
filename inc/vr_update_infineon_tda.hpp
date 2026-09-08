@@ -1,6 +1,8 @@
 #ifndef VR_UPDATE_TDA_H_
 #define VR_UPDATE_TDA_H_
 
+#include "vr_update.hpp"
+
 #define PAGE_NUM_REG 0xFF
 #define SILICON_VER_REG 0xFD
 #define USER_IMG_PTR1 0xB4
