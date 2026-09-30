@@ -85,6 +85,9 @@ install_vr_platform_config()
        "B5" | "B6" | "B7") #seagull board_ids
           cp /usr/sbin/seagull-vr.json "$vrConfigFolder/platform-vr.json"
        ;;
+       "BB" | "BC" | "BD" | "BE" | "BF" | "C0") #SB1 Arthur board_ids
+          cp /usr/sbin/arthur-vr.json "$vrConfigFolder/platform-vr.json"
+       ;;
        *)
           echo "Unsupported board_id: ${boardID}" >&2
           return 1
