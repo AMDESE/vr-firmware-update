@@ -114,7 +114,7 @@ static constexpr const char vrBundlePlatformMismatchMsg[] =
 
 #define NIGERIA 133   // 0x85
 
-#define GHANA 142 // 0x8E
+#define GHANA 142     // 0x8E
 
 /*Venice SLT boards*/
 #define SENEGAL_SLT 136 // 0x88
@@ -152,10 +152,17 @@ static constexpr const char vrBundlePlatformMismatchMsg[] =
 #define FALCON_1 178  // 0xB2
 #define FALCON_2 179  // 0xB3
 #define FALCON_3 180  // 0xB4
-     
+
 #define SEAGULL 181   // 0xB5
 #define SEAGULL_1 182 // 0xB6
 #define SEAGULL_2 183 // 0xB7
+
+#define ARTHUR 187    // 0xBB
+#define ARTHUR_1 188  // 0xBC
+#define ARTHUR_2 189  // 0xBD
+#define ARTHUR_3 190  // 0xBE
+#define ARTHUR_4 191  // 0xBF
+#define ARTHUR_5 192  // 0xC0
 
 struct bundleInterfaceStruct
 {
@@ -238,7 +245,7 @@ int vrUpdate(std::string Model, uint16_t SlaveAddress, uint32_t Crc,
             ret = FAILURE;
             goto Clean;
         }
-        
+
         ret = SUCCESS;
     Clean:
         vr_update_obj->closeI2cDevice();
@@ -397,128 +404,134 @@ bool getPlatformNameFromBoardId(unsigned int board_id,
                                 std::string& platformName)
 {
     platformName.clear();
-        if ((board_id == ONYX_1) || (board_id == ONYX_2) ||
-            (board_id == ONYX_3) || (board_id == ONYX_FR4) ||
-            (board_id == ONYX_SLT))
-        {
-            platformName = "Onyx";
-        }
-        else if ((board_id == QUARTZ_DAP) || (board_id == QUARTZ_1) ||
-                 (board_id == QUARTZ_2) || (board_id == QUARTZ_3) ||
-                 (board_id == QUARTZ_FR4))
-        {
-            platformName = "Quartz";
-        }
-        else if ((board_id == RUBY_1) || (board_id == RUBY_2) ||
-                 (board_id == RUBY_3))
-        {
-            platformName = "Ruby";
-        }
-        else if ((board_id == TITANITE_1) || (board_id == TITANITE_2) ||
-                 (board_id == TITANITE_3) || (board_id == TITANITE_4) ||
-                 (board_id == TITANITE_5) || (board_id == TITANITE_6))
-        {
-            platformName = "Titanite";
-        }
-        else if ((board_id == SHALE_64) || (board_id == SHALE_SLT) ||
-                 (board_id == SHALE))
-        {
-            platformName = "Shale";
-        }
-        else if (board_id == CINNABAR)
-        {
-            platformName = "Cinnabar";
-        }
-        else if ((board_id == SUNSTONE) || (board_id == SUNSTONE_DAP))
-        {
-            platformName = "Sunstone";
-        }
-        else if ((board_id == CHALUPA) || (board_id == CHALUPA_1) ||
-                 (board_id == CHALUPA_2))
-        {
-            platformName = "Chalupa";
-        }
-        else if (board_id == HUAMBO)
-        {
-            platformName = "Huambo";
-        }
-        else if ((board_id == GALENA) || (board_id == GALENA_1) ||
-                 (board_id == GALENA_2))
-        {
-            platformName = "Galena";
-        }
-        else if (board_id == RECLUSE)
-        {
-            platformName = "Recluse";
-        }
-        else if ((board_id == PURICO) || (board_id == PURICO_1) ||
-                 (board_id == PURICO_2))
-        {
-            platformName = "Purico";
-        }
-        else if ((board_id == VOLCANO) || (board_id == VOLCANO_1) ||
-                 (board_id == VOLCANO_2))
-        {
-            platformName = "Volcano";
-        }
-        else if ((board_id == SH5_1P_PWR) || (board_id == SH5_1P_OEM) ||
-                 (board_id == SH5_1P_SLT) || (board_id == SH5_1P_OEM_P) ||
-                 (board_id == SH5_2P_CABLED))
-        {
-            platformName = "SH5";
-        }
-        else if ((board_id == CONGO) || (board_id == CONGO_1) ||
-                 (board_id == CONGO_2) || (board_id == SENEGAL_SLT) ||
-                 (board_id == ZAMBIA) || (board_id == ZIMBABWE) ||
-                 (board_id == ZANZIBAR) || (board_id == SAHARA) ||
-                 (board_id == ZAIRE))
-        {
-            platformName = "Congo";
-        }
-        else if ((board_id == MOROCCO) || (board_id == MOROCCO_1) ||
-                 (board_id == MOROCCO_2) || (board_id == MALAWI)  ||
-                 (board_id == MARRAKESH))
-        {
-            platformName = "Morocco";
-        }
-        else if (board_id == KENYA)
-        {
-            platformName = "Kenya";
-        }
-        else if (board_id == NIGERIA)
-        {
-            platformName = "Nigeria";
-        }
-        else if (board_id == GHANA)
-        {
-            platformName = "Ghana";
-        }
-        else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
-                 (board_id == EAGLE_2) || (board_id == ROBIN) ||
-                 (board_id == SANDPIPER) || (board_id == PENGUIN) ||
-                 (board_id == PEACOCK) || (board_id == PELICAN))
-        {
-            platformName = "Eagle";
-        }
-        else if ((board_id == HORNBILL) || (board_id == HORNBILL_1) ||
-                 (board_id == HORNBILL_2) || (board_id == HORNBILL_3) ||
-                 (board_id == HORNBILL_4) || (board_id == HORNBILL_5) ||
-                 (board_id == HORNBILL_6) || (board_id == HORNBILL_7) ||
-                 (board_id == HORNBILL_8) || (board_id == DUCK) ||
-                 (board_id == DUCK_1) || (board_id == DUCK_2))
-        {
-            platformName = "Hornbill";
-        }
-        else if ((board_id == FALCON) || (board_id == FALCON_1) ||
-                 (board_id == FALCON_2) || (board_id == FALCON_3))
-        {
-            platformName = "Falcon";
-        }
-        else if ((board_id == SEAGULL) || (board_id == SEAGULL_1) ||
-                 (board_id == SEAGULL_2))
-        {
-            platformName = "Seagull";
-        }
+    if ((board_id == ONYX_1) || (board_id == ONYX_2) || (board_id == ONYX_3) ||
+        (board_id == ONYX_FR4) || (board_id == ONYX_SLT))
+    {
+        platformName = "Onyx";
+    }
+    else if ((board_id == QUARTZ_DAP) || (board_id == QUARTZ_1) ||
+             (board_id == QUARTZ_2) || (board_id == QUARTZ_3) ||
+             (board_id == QUARTZ_FR4))
+    {
+        platformName = "Quartz";
+    }
+    else if ((board_id == RUBY_1) || (board_id == RUBY_2) ||
+             (board_id == RUBY_3))
+    {
+        platformName = "Ruby";
+    }
+    else if ((board_id == TITANITE_1) || (board_id == TITANITE_2) ||
+             (board_id == TITANITE_3) || (board_id == TITANITE_4) ||
+             (board_id == TITANITE_5) || (board_id == TITANITE_6))
+    {
+        platformName = "Titanite";
+    }
+    else if ((board_id == SHALE_64) || (board_id == SHALE_SLT) ||
+             (board_id == SHALE))
+    {
+        platformName = "Shale";
+    }
+    else if (board_id == CINNABAR)
+    {
+        platformName = "Cinnabar";
+    }
+    else if ((board_id == SUNSTONE) || (board_id == SUNSTONE_DAP))
+    {
+        platformName = "Sunstone";
+    }
+    else if ((board_id == CHALUPA) || (board_id == CHALUPA_1) ||
+             (board_id == CHALUPA_2))
+    {
+        platformName = "Chalupa";
+    }
+    else if (board_id == HUAMBO)
+    {
+        platformName = "Huambo";
+    }
+    else if ((board_id == GALENA) || (board_id == GALENA_1) ||
+             (board_id == GALENA_2))
+    {
+        platformName = "Galena";
+    }
+    else if (board_id == RECLUSE)
+    {
+        platformName = "Recluse";
+    }
+    else if ((board_id == PURICO) || (board_id == PURICO_1) ||
+             (board_id == PURICO_2))
+    {
+        platformName = "Purico";
+    }
+    else if ((board_id == VOLCANO) || (board_id == VOLCANO_1) ||
+             (board_id == VOLCANO_2))
+    {
+        platformName = "Volcano";
+    }
+    else if ((board_id == SH5_1P_PWR) || (board_id == SH5_1P_OEM) ||
+             (board_id == SH5_1P_SLT) || (board_id == SH5_1P_OEM_P) ||
+             (board_id == SH5_2P_CABLED))
+    {
+        platformName = "SH5";
+    }
+    else if ((board_id == CONGO) || (board_id == CONGO_1) ||
+             (board_id == CONGO_2) || (board_id == SENEGAL_SLT) ||
+             (board_id == ZAMBIA) || (board_id == ZIMBABWE) ||
+             (board_id == ZANZIBAR) || (board_id == SAHARA) ||
+             (board_id == ZAIRE))
+    {
+        platformName = "Congo";
+    }
+    else if ((board_id == MOROCCO) || (board_id == MOROCCO_1) ||
+             (board_id == MOROCCO_2) || (board_id == MALAWI) ||
+             (board_id == MARRAKESH))
+    {
+        platformName = "Morocco";
+    }
+    else if (board_id == KENYA)
+    {
+        platformName = "Kenya";
+    }
+    else if (board_id == NIGERIA)
+    {
+        platformName = "Nigeria";
+    }
+    else if (board_id == GHANA)
+    {
+        platformName = "Ghana";
+    }
+    else if ((board_id == EAGLE) || (board_id == EAGLE_1) ||
+             (board_id == EAGLE_2) || (board_id == ROBIN) ||
+             (board_id == SANDPIPER) || (board_id == PENGUIN) ||
+             (board_id == PEACOCK) || (board_id == PELICAN))
+    {
+        platformName = "Eagle";
+    }
+    else if ((board_id == HORNBILL) || (board_id == HORNBILL_1) ||
+             (board_id == HORNBILL_2) || (board_id == HORNBILL_3) ||
+             (board_id == HORNBILL_4) || (board_id == HORNBILL_5) ||
+             (board_id == HORNBILL_6) || (board_id == HORNBILL_7) ||
+             (board_id == HORNBILL_8) || (board_id == DUCK) ||
+             (board_id == DUCK_1) || (board_id == DUCK_2))
+    {
+        platformName = "Hornbill";
+    }
+    else if ((board_id == FALCON) || (board_id == FALCON_1) ||
+             (board_id == FALCON_2) || (board_id == FALCON_3))
+    {
+        platformName = "Falcon";
+    }
+    else if ((board_id == SEAGULL) || (board_id == SEAGULL_1) ||
+             (board_id == SEAGULL_2))
+    {
+        platformName = "Seagull";
+    }
+    else if ((board_id == ARTHUR) || (board_id == ARTHUR_1) ||
+             (board_id == ARTHUR_2) || (board_id == ARTHUR_3) ||
+             (board_id == ARTHUR_4) || (board_id == ARTHUR_5))
+    {
+        platformName = "Arthur";
+    }
+
 
     if (platformName.empty())
     {
@@ -527,8 +540,7 @@ bool getPlatformNameFromBoardId(unsigned int board_id,
     return true;
 }
 
-void publishVrBundleStatusMessage(sdbusplus::bus::bus& bus,
-                                  const char* message)
+void publishVrBundleStatusMessage(sdbusplus::bus::bus& bus, const char* message)
 {
     const std::string msg(message);
     for (auto& status : bundleInterfaceObj.Status)
@@ -607,8 +619,7 @@ static bool parseHexU16(const std::string& str, uint16_t& out,
     }
     catch (const std::exception& e)
     {
-        sd_journal_print(LOG_ERR,
-                         "VR bundle: invalid hex in %s '%s': %s",
+        sd_journal_print(LOG_ERR, "VR bundle: invalid hex in %s '%s': %s",
                          fieldName, str.c_str(), e.what());
         return false;
     }
@@ -629,8 +640,7 @@ static bool parseHexU32(const std::string& str, uint32_t& out,
     }
     catch (const std::exception& e)
     {
-        sd_journal_print(LOG_ERR,
-                         "VR bundle: invalid hex in %s '%s': %s",
+        sd_journal_print(LOG_ERR, "VR bundle: invalid hex in %s '%s': %s",
                          fieldName, str.c_str(), e.what());
         return false;
     }
@@ -777,8 +787,8 @@ int main(int argc, char* argv[])
                         "(board_id 0x%x), bundle targets %s\n",
                         platformNameCheck.c_str(), boardIdCheck,
                         bundleBoardName.c_str());
-                    publishVrBundleStatusMessage(
-                        bus, vrBundlePlatformMismatchMsg);
+                    publishVrBundleStatusMessage(bus,
+                                                 vrBundlePlatformMismatchMsg);
                     return FAILURE;
                 }
             }
@@ -817,7 +827,8 @@ int main(int argc, char* argv[])
                         nlohmann::json vr_data;
                         vr_json_file >> vr_data;
 
-                        for (nlohmann::json platform_record : vr_data["VRConfigs"])
+                        for (nlohmann::json platform_record :
+                             vr_data["VRConfigs"])
                         {
                             std::string PlatformSlaveAddr =
                                 platform_record["SlaveAddress"];
@@ -836,8 +847,10 @@ int main(int argc, char* argv[])
                             {
                                 std::string PmbusAddr =
                                     platform_record["PmbusAddress"];
-                                if (!platform_record["PmbusAddress"].is_string() ||
-                                    !parseHexU16(PmbusAddr, PlatformPmbusAddress,
+                                if (!platform_record["PmbusAddress"]
+                                         .is_string() ||
+                                    !parseHexU16(PmbusAddr,
+                                                 PlatformPmbusAddress,
                                                  "PmbusAddress"))
                                 {
                                     continue;
@@ -968,14 +981,14 @@ int main(int argc, char* argv[])
 
                 if (PlatformIDValidation(BoardName) == false)
                 {
-                    publishVrBundleStatusMessage(
-                        bus, vrBundlePlatformMismatchMsg);
+                    publishVrBundleStatusMessage(bus,
+                                                 vrBundlePlatformMismatchMsg);
                     return FAILURE;
                 }
 
                 sd_journal_print(LOG_INFO,
                                  "Updating %s VR for the Slave Address = 0x%x",
-                                  Processor.c_str(),SlaveAddress);
+                                 Processor.c_str(), SlaveAddress);
 
                 ret = vrUpdate(Model, SlaveAddress, Crc, &deviceVersion,
                                Processor, configFilePath, UpdateType,
@@ -989,30 +1002,35 @@ int main(int argc, char* argv[])
 
                 if (ret == SUCCESS)
                 {
-                    sd_journal_print(LOG_INFO,
+                    sd_journal_print(
+                        LOG_INFO,
                         "VR update completed for %s at slave address 0x%x.",
-                        Processor.c_str(),SlaveAddress);
+                        Processor.c_str(), SlaveAddress);
                 }
 
                 else if (CrcMatched == true)
                 {
-                    sd_journal_print(LOG_INFO,
+                    sd_journal_print(
+                        LOG_INFO,
                         "VR already up to date for %s at slave address 0x%x.",
-                        Processor.c_str(),SlaveAddress);
+                        Processor.c_str(), SlaveAddress);
                 }
 
                 for (int i = 0; i < bundleInterfaceObj.SlaveAddress.size(); i++)
                 {
-                    std::string BundleSlaveAddr = bundleInterfaceObj.SlaveAddress[i];
+                    std::string BundleSlaveAddr =
+                        bundleInterfaceObj.SlaveAddress[i];
                     uint16_t BundleSlaveAddress = 0;
                     if (!parseHexU16(BundleSlaveAddr, BundleSlaveAddress,
                                      "Bundle SlaveAddress"))
                     {
                         continue;
                     }
-                    bool addressMatched = (BundleSlaveAddress == SlaveAddress) ||
-                      (BundleSlaveAddress == PmbusAddress);
-                    if (addressMatched && (bundleInterfaceObj.UpdateStatus[i] == false))
+                    bool addressMatched =
+                        (BundleSlaveAddress == SlaveAddress) ||
+                        (BundleSlaveAddress == PmbusAddress);
+                    if (addressMatched &&
+                        (bundleInterfaceObj.UpdateStatus[i] == false))
                     {
                         if (strcasecmp(bundleInterfaceObj.Processor[i].c_str(),
                                        Processor.c_str()) == SUCCESS)

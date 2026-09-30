@@ -12,6 +12,7 @@
 #include "vr_update_infineon_xdpe.hpp"
 #include "vr_update_ism6636x.hpp"
 #include "vr_update_mp2869.hpp"
+#include "vr_update_mpq82d00.hpp"
 #include "vr_update_mps.hpp"
 #include "vr_update_mps285x.hpp"
 #include "vr_update_renesas_gen2.hpp"
@@ -130,6 +131,11 @@ vr_update* vr_update::CreateVRFrameworkObject(
     {
         p = new vr_update_mp2869(Processor, Crc, Model, SlaveAddress,
                                  configFilePath, Revision, PmbusAddress);
+    }
+    else if (strcasecmp(Model.c_str(), MPQ82D00GQT) == SUCCESS)
+    {
+        p = new vr_update_mpq82d00(Processor, Crc, Model, SlaveAddress,
+                                   configFilePath, Revision, PmbusAddress);
     }
     else if ((strcasecmp(Model.c_str(), FAN251015) == SUCCESS) ||
              (strcasecmp(Model.c_str(), FAN251030) == SUCCESS))
