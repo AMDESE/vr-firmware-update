@@ -124,7 +124,8 @@ bool vr_update_mp2869::isUpdatable()
     }
 
     if ((VrDeviceId == PRODUCT_ID) || (VrDeviceId == PRODUCT_ID_1) ||
-        (VrDeviceId == PRODUCT_ID_2) || (VrDeviceId == PRODUCT_ID_3))
+        (VrDeviceId == PRODUCT_ID_2) || (VrDeviceId == PRODUCT_ID_3) ||
+        (VrDeviceId == PRODUCT_ID_4) || (VrDeviceId == PRODUCT_ID_5))
     {
         sd_journal_print(LOG_INFO, "Device Id matched\n");
     }
