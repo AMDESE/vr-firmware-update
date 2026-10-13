@@ -12,6 +12,8 @@
 #define PRODUCT_ID_1 (0x2869)
 #define PRODUCT_ID_2 (0x869A)
 #define PRODUCT_ID_3 (0x608A)
+#define PRODUCT_ID_4 (0x869C)
+#define PRODUCT_ID_5 (0x608C)
 #define PAGE_0 (0)
 #define PAGE_1 (1)
 #define PAGE_2 (2)
