@@ -821,6 +821,7 @@ int main(int argc, char* argv[])
                     {
                         return FAILURE;
                     }
+                    bool addressFound = false;
                     if (std::filesystem::exists(VR_PLATFORM_FILE))
                     {
                         std::ifstream vr_json_file(VR_PLATFORM_FILE);
@@ -857,15 +858,40 @@ int main(int argc, char* argv[])
                                 }
                             }
 
-                            if (PlatformSlaveAddress == SlaveAddress ||
-                                (PlatformPmbusAddress != 0 &&
-                                 PlatformPmbusAddress == SlaveAddress))
+                            bool processorMatches = true;
+                            if (record.contains("Processor") &&
+                                record["Processor"].is_string() &&
+                                platform_record.contains("Processor") &&
+                                platform_record["Processor"].is_string())
+                            {
+                                processorMatches =
+                                    record["Processor"].get<std::string>() ==
+                                    platform_record["Processor"]
+                                        .get<std::string>();
+                            }
+
+                            if (processorMatches &&
+                                (PlatformSlaveAddress == SlaveAddress ||
+                                 (PlatformPmbusAddress != 0 &&
+                                  PlatformPmbusAddress == SlaveAddress)))
                             {
                                 PmbusAddress = PlatformPmbusAddress;
                                 SlaveAddress = PlatformSlaveAddress;
+                                addressFound = true;
                                 break;
                             }
                         }
+                    }
+
+                    if (!addressFound)
+                    {
+                        sd_journal_print(
+                            LOG_ERR,
+                            "VR update failed: I2C address %s in "
+                            "vrbundle.json is not a correct address for "
+                            "this platform. Update aborted\n",
+                            SlaveAddr.c_str());
+                        return FAILURE;
                     }
                 }
                 else
