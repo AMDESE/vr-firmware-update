@@ -21,6 +21,8 @@
 #include <sdbusplus/asio/object_server.hpp>
 #include <sdbusplus/asio/property.hpp>
 
+#include <algorithm>
+#include <cctype>
 #include <filesystem>
 #include <iostream>
 #include <map>
@@ -37,6 +39,8 @@ constexpr auto bundleVersionInterface =
     "xyz.openbmc_project.Software.BundleVersion";
 
 #define COMMAND_BOARD_ID ("/sbin/fw_printenv -n board_id")
+#define COMMAND_BOARD_REV ("/sbin/fw_printenv -n board_rev")
+#define BOARD_REV_LEN 32
 #define COMMAND_LEN 3
 
 static constexpr const char unsupportedBoardStatusMsg[] =
@@ -646,6 +650,117 @@ static bool parseHexU32(const std::string& str, uint32_t& out,
     }
 }
 
+static bool readBoardRevFromEnv(std::string& boardRev)
+{
+    boardRev.clear();
+    FILE* pf = popen(COMMAND_BOARD_REV, "r");
+    if (!pf)
+    {
+        return false;
+    }
+
+    char data[BOARD_REV_LEN];
+    if (!fgets(data, BOARD_REV_LEN, pf))
+    {
+        pclose(pf);
+        return false;
+    }
+    pclose(pf);
+
+    boardRev = data;
+    trim(boardRev);
+    return !boardRev.empty();
+}
+
+// Normalizes "0x0A", " 0a\n" and "0A" to the same value for comparison.
+static std::string normalizeHexRevision(std::string value)
+{
+    trim(value);
+    std::transform(value.begin(), value.end(), value.begin(),
+                   [](unsigned char c) {
+                       return static_cast<char>(std::tolower(c));
+                   });
+    if (value.rfind("0x", 0) == 0)
+    {
+        value.erase(0, 2);
+    }
+    return value;
+}
+
+// Compares BoardRevision in vrbundle.json with the board_rev of this BMC.
+// A bundle without BoardRevision is accepted so that bundles already in the
+// field keep working. Returns false when the VR update must be aborted.
+static bool validateBundleBoardRevision(sdbusplus::bus::bus& bus,
+                                        const json& data)
+{
+    std::vector<std::string> bundleRevs;
+
+    if (data.contains("BoardRevision"))
+    {
+        if (!data["BoardRevision"].is_string())
+        {
+            sd_journal_print(LOG_ERR,
+                             "VR bundle: BoardRevision is not a string. "
+                             "Update aborted\n");
+            return false;
+        }
+        bundleRevs.push_back(data["BoardRevision"].get<std::string>());
+    }
+
+    if (data.contains("VR") && data["VR"].is_array())
+    {
+        for (const auto& record : data["VR"])
+        {
+            if (!record.contains("BoardRevision"))
+            {
+                continue;
+            }
+            if (!record["BoardRevision"].is_string())
+            {
+                sd_journal_print(LOG_ERR,
+                                 "VR bundle: BoardRevision is not a string. "
+                                 "Update aborted\n");
+                return false;
+            }
+            bundleRevs.push_back(record["BoardRevision"].get<std::string>());
+        }
+    }
+
+    if (bundleRevs.empty())
+    {
+        sd_journal_print(LOG_WARNING,
+                         "VR bundle has no BoardRevision; skipping the board "
+                         "revision check\n");
+        return true;
+    }
+
+    std::string boardRev;
+    if (!readBoardRevFromEnv(boardRev))
+    {
+        sd_journal_print(LOG_ERR,
+                         "Failed to read board_rev from U-Boot environment. "
+                         "Update aborted\n");
+        return false;
+    }
+
+    for (const auto& bundleRev : bundleRevs)
+    {
+        if (normalizeHexRevision(bundleRev) != normalizeHexRevision(boardRev))
+        {
+            sd_journal_print(LOG_ERR,
+                             "VR bundle BoardRevision %s does not match "
+                             "board_rev %s. Update aborted\n",
+                             bundleRev.c_str(), boardRev.c_str());
+            publishVrBundleStatusMessage(bus, vrBundlePlatformMismatchMsg);
+            return false;
+        }
+    }
+
+    sd_journal_print(LOG_INFO, "VR bundle BoardRevision %s matches board_rev\n",
+                     bundleRevs.front().c_str());
+    return true;
+}
+
 int main(int argc, char* argv[])
 {
     int ret = FAILURE;
@@ -765,6 +880,11 @@ int main(int argc, char* argv[])
             std::ifstream json_file(vrBundleJsonFile);
             json data;
             json_file >> data;
+
+            if (!validateBundleBoardRevision(bus, data))
+            {
+                return FAILURE;
+            }
 
             for (json mismatchRecord : data["VR"])
             {
